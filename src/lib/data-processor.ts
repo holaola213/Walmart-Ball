@@ -445,7 +445,7 @@ function computeRivalry(
   }
 
   // Score each pair: prefer closest record, then smallest avg margin, then most games
-  let bestPair: typeof pairMap extends Map<string, infer V> ? V : never | null = null;
+  let bestPair: { team1Id: number; team2Id: number; team1Wins: number; team2Wins: number; ties: number; margins: number[]; matchups: { week: number; team1Score: number; team2Score: number }[] } | null = null;
   let bestScore = Infinity;
 
   for (const [, pair] of pairMap) {
