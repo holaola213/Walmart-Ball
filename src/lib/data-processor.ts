@@ -39,10 +39,10 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   );
 
   const teamWeeklyScores = computeTeamWeeklyScores(completedMatchups);
-  const topBestWeeks = findTopWeeks(teamWeeklyScores, teamMap, "best", 3);
+  const topBestWeeks = findTopWeeks(teamWeeklyScores, teamMap, "best", 5);
   const bestWeek = topBestWeeks[0] || { teamName: "", teamId: 0, week: 0, score: 0 };
   const bestWeekRunnersUp = topBestWeeks.slice(1);
-  const topWorstWeeks = findTopWeeks(teamWeeklyScores, teamMap, "worst", 3);
+  const topWorstWeeks = findTopWeeks(teamWeeklyScores, teamMap, "worst", 5);
   const worstWeek = topWorstWeeks[0] || { teamName: "", teamId: 0, week: 0, score: 0 };
   const worstWeekRunnersUp = topWorstWeeks.slice(1);
   const biggestBlowout = findBiggestBlowout(completedMatchups, teamMap);

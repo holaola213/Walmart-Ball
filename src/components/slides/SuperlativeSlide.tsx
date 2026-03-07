@@ -162,6 +162,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                       <span className="text-red-400/80">{mu.score.toFixed(1)}</span>
                       <span className="text-white/15">-</span>
                       <span className="text-white/40">{mu.oppScore.toFixed(1)}</span>
+                      <span className="text-red-400/50 text-[9px] shrink-0">(-{(mu.oppScore - mu.score).toFixed(1)})</span>
                       <span className="text-white/15 text-[10px]">vs</span>
                       <span className="text-white/25 text-[10px] truncate">{mu.oppName}</span>
                     </div>
