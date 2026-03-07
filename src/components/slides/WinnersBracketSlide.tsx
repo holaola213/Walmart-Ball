@@ -71,7 +71,7 @@ function EmptySlot({ showTrophy = false }: { showTrophy?: boolean }) {
 function Connector({ heightPx }: { heightPx: number }) {
   const border = "1px solid rgba(255, 255, 255, 0.12)";
   return (
-    <div className="flex flex-col shrink-0" style={{ width: "14px", md: "18px" }}>
+    <div className="flex flex-col shrink-0 w-[14px] md:w-[18px]">
       <div
         style={{
           borderTop: border,
