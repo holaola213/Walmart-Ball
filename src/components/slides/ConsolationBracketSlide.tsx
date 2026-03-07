@@ -8,40 +8,47 @@ import { StandingEntry } from "@/lib/types";
 
 function TeamCell({
   team,
-  seed,
   accentColor,
 }: {
   team: StandingEntry;
-  seed: number;
   accentColor: string;
 }) {
   return (
     <div
-      className="flex items-center gap-2 w-[120px] md:w-[160px] h-[34px] md:h-[40px] rounded-md px-2.5"
+      className="flex items-center gap-2 w-[150px] md:w-[210px] h-[38px] md:h-[46px] rounded-lg px-2.5 md:px-3"
       style={{
         background: "rgba(255, 255, 255, 0.04)",
         border: "1px solid rgba(255, 255, 255, 0.08)",
       }}
     >
       <span
-        className="font-stat text-[10px] md:text-[11px] shrink-0 w-5 text-center"
-        style={{ color: `${accentColor}70` }}
+        className="font-stat text-[9px] md:text-[10px] shrink-0 w-5 text-right"
+        style={{ color: `${accentColor}60` }}
       >
-        {seed}
+        #{team.rank}
       </span>
-      {team.logo && (
+      {team.logo ? (
         <img
           src={getTeamLogoUrl(team.logo)}
           alt=""
-          className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover bg-white/10 shrink-0"
+          className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover bg-white/10 shrink-0"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
+      ) : (
+        <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/5 shrink-0 flex items-center justify-center">
+          <span className="text-white/30 text-[9px] font-display">{team.teamName.charAt(0)}</span>
+        </div>
       )}
-      <span className="text-white/70 text-[10px] md:text-xs font-medium truncate leading-tight">
-        {team.abbrev}
-      </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-white/80 text-[9px] md:text-[11px] font-medium truncate leading-tight">
+          {team.teamName}
+        </p>
+        <p className="text-white/25 text-[8px] md:text-[9px] font-stat leading-tight">
+          {team.wins}-{team.losses}
+        </p>
+      </div>
     </div>
   );
 }
@@ -49,13 +56,13 @@ function TeamCell({
 function EmptySlot() {
   return (
     <div
-      className="flex items-center justify-center gap-1 w-[120px] md:w-[160px] h-[34px] md:h-[40px] rounded-md"
+      className="flex items-center justify-center gap-1 w-[150px] md:w-[210px] h-[38px] md:h-[46px] rounded-lg"
       style={{
         background: "rgba(255, 255, 255, 0.02)",
-        border: "1px dashed rgba(255, 255, 255, 0.1)",
+        border: "1px dashed rgba(255, 255, 255, 0.08)",
       }}
     >
-      <span className="font-stat text-[10px] text-white/15">TBD</span>
+      <span className="font-stat text-[9px] text-white/15">TBD</span>
     </div>
   );
 }
@@ -63,7 +70,7 @@ function EmptySlot() {
 function Connector({ heightPx }: { heightPx: number }) {
   const border = "1px solid rgba(255, 255, 255, 0.12)";
   return (
-    <div className="flex flex-col shrink-0" style={{ width: "20px" }}>
+    <div className="flex flex-col shrink-0" style={{ width: "18px" }}>
       <div
         style={{
           borderTop: border,
@@ -89,7 +96,7 @@ function HLine() {
     <div
       className="shrink-0"
       style={{
-        width: "14px",
+        width: "12px",
         height: "1px",
         background: "rgba(255, 255, 255, 0.12)",
       }}
@@ -101,14 +108,15 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
   const accentColor = SLIDE_COLORS.consolationBracket;
   const seeds = data.standings.slice(8, 12);
 
+  // ESPN order: higher seed (worse) on top
   const matchups = [
-    [seeds[0], seeds[3]], // 9 vs 12
-    [seeds[1], seeds[2]], // 10 vs 11
+    [seeds[1], seeds[0]], // #10 vs #9
+    [seeds[3], seeds[2]], // #12 vs #11
   ];
 
-  const cellH = 34;
-  const pairGap = 6;
-  const matchupGap = 20;
+  const cellH = 38;
+  const pairGap = 4;
+  const matchupGap = 24;
   const pairH = cellH * 2 + pairGap;
   const connectorH = pairH + matchupGap;
 
@@ -128,7 +136,7 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
-        className="font-display text-4xl md:text-5xl text-white text-center mb-1"
+        className="font-display text-3xl md:text-5xl text-white text-center mb-1"
         style={{ textShadow: `0 0 40px ${accentColor}30` }}
       >
         CONSOLATION BRACKET
@@ -138,7 +146,7 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="text-white/30 text-[10px] font-stat tracking-[0.3em] uppercase mb-8"
+        className="text-white/30 text-[10px] font-stat tracking-[0.3em] uppercase mb-6"
       >
         Seeds 9-12
       </motion.p>
@@ -148,13 +156,13 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.55 }}
-        className="flex items-center mb-3"
+        className="flex items-center mb-2"
       >
-        <span className="w-[120px] md:w-[160px] text-center text-white/15 text-[8px] font-stat tracking-[0.2em] uppercase">
+        <span className="w-[150px] md:w-[210px] text-center text-white/15 text-[7px] md:text-[8px] font-stat tracking-[0.2em] uppercase">
           Round 1
         </span>
-        <span className="w-[34px] shrink-0" />
-        <span className="w-[120px] md:w-[160px] text-center text-white/15 text-[8px] font-stat tracking-[0.2em] uppercase">
+        <span className="w-[30px] shrink-0" />
+        <span className="w-[150px] md:w-[210px] text-center text-white/15 text-[7px] md:text-[8px] font-stat tracking-[0.2em] uppercase">
           Finals
         </span>
       </motion.div>
@@ -171,8 +179,8 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
         >
           {matchups.map((pair, i) => (
             <div key={i} className="flex flex-col" style={{ gap: `${pairGap}px` }}>
-              <TeamCell team={pair[0]} seed={pair[0].rank} accentColor={accentColor} />
-              <TeamCell team={pair[1]} seed={pair[1].rank} accentColor={accentColor} />
+              <TeamCell team={pair[0]} accentColor={accentColor} />
+              <TeamCell team={pair[1]} accentColor={accentColor} />
             </div>
           ))}
         </motion.div>
@@ -182,17 +190,9 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="shrink-0"
+          className="shrink-0 flex items-center"
         >
           <Connector heightPx={connectorH} />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="shrink-0"
-        >
           <HLine />
         </motion.div>
 

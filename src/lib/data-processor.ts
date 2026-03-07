@@ -665,9 +665,15 @@ function computeSuperlatives(
       teamId,
       detail: `${count} lucky wins`,
       enrichedDetail: `Avg ${avgScore.toFixed(1)} pts vs ${avgMedian.toFixed(1)} median`,
-      runnersUp: luckyEntries.slice(1, 5).map(([tid, c]) => ({
-        teamName: teamMap[tid], teamId: tid, detail: `${c} lucky wins`,
-      })),
+      runnersUp: luckyEntries.slice(1, 5).map(([tid, c]) => {
+        const scores = luckyScores.get(tid) || [];
+        const avg = scores.length > 0 ? scores.reduce((s, w) => s + w.score, 0) / scores.length : 0;
+        const avgMed = scores.length > 0 ? scores.reduce((s, w) => s + w.median, 0) / scores.length : 0;
+        return {
+          teamName: teamMap[tid], teamId: tid,
+          detail: `${c} lucky wins · Avg ${avg.toFixed(1)} vs ${avgMed.toFixed(1)} median`,
+        };
+      }),
     });
   }
 
