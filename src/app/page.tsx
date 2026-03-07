@@ -73,7 +73,7 @@ export default function Home() {
 
   if (view === "slides" && data) {
     return (
-      <SlideContainer data={data} onFinished={() => setView("teamSelect")} />
+      <SlideContainer data={data} onFinished={() => setView("teamSelect")} onHome={() => setView("landing")} />
     );
   }
 

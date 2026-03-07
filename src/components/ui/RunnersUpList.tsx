@@ -32,7 +32,7 @@ export function RunnersUpList({ items, accentColor, delay = 1.0 }: Props) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: delay + 0.1 + i * 0.12 }}
-            className="flex items-start gap-2.5 px-3 py-2 rounded-lg"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
             style={{ background: `${accentColor}06` }}
           >
             <span
@@ -46,7 +46,7 @@ export function RunnersUpList({ items, accentColor, delay = 1.0 }: Props) {
               <img
                 src={item.avatarUrl}
                 alt=""
-                className="w-5 h-5 rounded-full object-cover bg-white/10 shrink-0"
+                className="w-8 h-8 rounded-full object-cover bg-white/10 shrink-0"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
@@ -62,14 +62,13 @@ export function RunnersUpList({ items, accentColor, delay = 1.0 }: Props) {
                   {item.sublabel}
                 </p>
               )}
+              <p
+                className="font-stat text-[10px] leading-tight mt-0.5"
+                style={{ color: `${accentColor}60` }}
+              >
+                {item.value}
+              </p>
             </div>
-
-            <span
-              className="font-stat text-xs shrink-0"
-              style={{ color: `${accentColor}60` }}
-            >
-              {item.value}
-            </span>
           </motion.div>
         ))}
       </div>

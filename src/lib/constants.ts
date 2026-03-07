@@ -51,6 +51,8 @@ export const SLIDE_COLORS: Record<string, string> = {
   categories: "#A855F7",
   superlatives: "#F472B6",
   rivalry: "#F472B6",
+  winnersBracket: "#10B981",
+  consolationBracket: "#6366F1",
   outro: "#8B5CF6",
   personalRecap: "#8B5CF6",
   personalBest: "#22C55E",

@@ -22,6 +22,8 @@ import { CategoryLeadersSlide } from "./CategoryLeadersSlide";
 import { SuperlativeSlide } from "./SuperlativeSlide";
 import { RivalrySlide } from "./RivalrySlide";
 import { OutroSlide } from "./OutroSlide";
+import { WinnersBracketSlide } from "./WinnersBracketSlide";
+import { ConsolationBracketSlide } from "./ConsolationBracketSlide";
 
 export interface SlideProps {
   data: WrappedData;
@@ -62,9 +64,10 @@ const OUTRO_SLIDE: SlideEntry = {
 interface Props {
   data: WrappedData;
   onFinished: () => void;
+  onHome?: () => void;
 }
 
-export function SlideContainer({ data, onFinished }: Props) {
+export function SlideContainer({ data, onFinished, onHome }: Props) {
   const slides = useMemo(() => {
     const result: SlideEntry[] = [...STATIC_SLIDES_BEFORE];
 
@@ -86,6 +89,10 @@ export function SlideContainer({ data, onFinished }: Props) {
         id: `superlative-${i}`,
       });
     });
+
+    // Add playoff bracket slides
+    result.push({ type: "component", component: WinnersBracketSlide, id: "winnersBracket" });
+    result.push({ type: "component", component: ConsolationBracketSlide, id: "consolationBracket" });
 
     result.push(OUTRO_SLIDE);
     return result;
@@ -135,6 +142,23 @@ export function SlideContainer({ data, onFinished }: Props) {
       onClick={handleClick}
     >
       <ProgressBar current={currentIndex} total={slides.length} />
+
+      {/* Home button */}
+      {onHome && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onHome();
+          }}
+          className="fixed top-4 left-4 z-50 w-9 h-9 flex items-center justify-center rounded-full glass text-white/20 hover:text-white/60 hover:bg-white/[0.08] transition-all"
+          aria-label="Back to home"
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M3 10L10 3L17 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M5 8.5V16H8.5V12H11.5V16H15V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      )}
 
       <AnimatePresence mode="wait" custom={direction}>
         {renderSlide()}
