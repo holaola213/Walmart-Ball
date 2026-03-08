@@ -16,7 +16,7 @@ export function MvpPlayerSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-orange-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker text-[#F0A35E]/75 mb-6"
       >
         League MVP
       </motion.p>
@@ -26,41 +26,42 @@ export function MvpPlayerSlide({ data, direction }: SlideProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
         className="glass-strong rounded-2xl p-8 text-center max-w-sm w-full"
-        style={{ boxShadow: "0 0 40px rgba(249, 115, 22, 0.1)" }}
+        style={{ boxShadow: "0 0 40px rgba(240, 163, 94, 0.12)" }}
       >
         {mvp.playerId > 0 && (
           <div className="mb-4 flex justify-center">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-lg opacity-30" style={{ background: "#F97316" }} />
+              <div className="absolute inset-0 rounded-full blur-lg opacity-30" style={{ background: "#F0A35E" }} />
               <img
                 src={getPlayerHeadshotUrl(mvp.playerId)}
                 alt={mvp.playerName}
-                className="relative w-24 h-24 rounded-full object-cover bg-white/10 border border-orange-500/30"
+                className="relative w-24 h-24 rounded-full object-cover bg-white/10 border"
+                style={{ borderColor: "rgba(240, 163, 94, 0.35)" }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             </div>
           </div>
         )}
-        <div className="font-stat text-orange-400/60 text-[10px] uppercase tracking-[0.3em] mb-2">
+        <div className="type-meta text-[#F0A35E]/75 mb-2">
           {mvp.position}
         </div>
-        <h3 className="font-display text-4xl md:text-5xl text-white mb-2">
+        <h3 className="type-title-md text-white mb-2 title-balance measure-medium mx-auto">
           {mvp.playerName}
         </h3>
-        <p className="text-white/30 text-xs mb-6">
+        <p className="text-white/35 text-[14px] leading-[1.35] mb-6 copy-pretty">
           Rostered by {mvp.teamName}
         </p>
-        <div className="font-stat text-5xl font-bold text-orange-400" style={{ textShadow: "0 0 30px rgba(249, 115, 22, 0.3)" }}>
+        <div className="type-number-lg font-bold text-[#F0A35E]" style={{ textShadow: "0 0 30px rgba(240, 163, 94, 0.3)" }}>
           <StatNumber value={mvp.totalPoints} decimals={1} />
         </div>
-        <p className="text-white/20 text-[10px] font-stat uppercase tracking-widest mt-2">Total Fantasy Points</p>
+        <p className="type-meta text-white/25 mt-2">Total fantasy points</p>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-4 px-4 py-1.5 rounded-full glass text-orange-400 text-xs font-stat tracking-wider"
+        className="mt-4 px-4 py-1.5 rounded-full glass text-[#F0A35E] type-meta"
       >
         {mvp.acquisitionType === "DRAFT"
           ? "DRAFTED"

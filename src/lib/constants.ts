@@ -36,57 +36,42 @@ export const POSITION_MAP: Record<number, string> = {
 };
 
 export const SLIDE_COLORS: Record<string, string> = {
-  welcome: "#8B5CF6",
-  standings: "#F59E0B",
-  champion: "#EAB308",
-  mvp: "#F97316",
-  bestWeek: "#22C55E",
-  worstWeek: "#EF4444",
-  blowout: "#3B82F6",
-  closest: "#14B8A6",
-  consistent: "#6366F1",
-  boomBust: "#EC4899",
-  trades: "#06B6D4",
-  waiverMvp: "#84CC16",
-  categories: "#A855F7",
-  superlatives: "#F472B6",
-  rivalry: "#F472B6",
-  winnersBracket: "#10B981",
-  consolationBracket: "#6366F1",
-  outro: "#8B5CF6",
-  personalRecap: "#8B5CF6",
-  personalBest: "#22C55E",
-  personalMvp: "#F97316",
-  personalRivals: "#3B82F6",
-  personalPickup: "#84CC16",
+  welcome: "#66E4FF",
+  standings: "#59BEFF",
+  champion: "#FFD166",
+  mvp: "#FF8F5E",
+  bestWeek: "#42F5B5",
+  worstWeek: "#FF6D8A",
+  blowout: "#4FA7FF",
+  closest: "#49F2D2",
+  consistent: "#7F93FF",
+  boomBust: "#FF78D8",
+  trades: "#45E9FF",
+  waiverMvp: "#8CFF72",
+  categories: "#C77DFF",
+  superlatives: "#D46BFF",
+  rivalry: "#FF5FC2",
+  winnersBracket: "#3FFFC0",
+  consolationBracket: "#6FAEFF",
+  outro: "#7BE8FF",
+  personalRecap: "#66E4FF",
+  personalBest: "#42F5B5",
+  personalMvp: "#FF8F5E",
+  personalRivals: "#4FA7FF",
+  personalPickup: "#8CFF72",
 };
 
 export const SUPERLATIVE_COLORS: string[] = [
-  "#F472B6", // pink
-  "#8B5CF6", // violet
-  "#F59E0B", // amber
-  "#22C55E", // green
-  "#3B82F6", // blue
-  "#EF4444", // red
-  "#06B6D4", // cyan
-  "#EC4899", // magenta
-  "#A855F7", // purple
-  "#14B8A6", // teal
-  "#F97316", // orange
-  "#84CC16", // lime
-  "#6366F1", // indigo
-  "#EAB308", // yellow
-  "#E11D48", // rose
-  "#0EA5E9", // sky
-  "#10B981", // emerald
-  "#D946EF", // fuchsia
-  "#78716C", // stone
-  "#FB923C", // orange light
-  "#4ADE80", // green light
-  "#818CF8", // indigo light
-  "#F87171", // red light
-  "#34D399", // emerald light (SOS)
-  "#C084FC", // purple light (Draft Day MVP)
+  "#66E4FF",
+  "#C77DFF",
+  "#FF78D8",
+  "#4FA7FF",
+  "#45E9FF",
+  "#42F5B5",
+  "#8CFF72",
+  "#FF8F5E",
+  "#FF6D8A",
+  "#FFD166",
 ];
 
 export const LEAGUE_ID =

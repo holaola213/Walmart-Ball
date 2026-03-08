@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { processWrappedData } from "@/lib/data-processor";
 import { WrappedData } from "@/lib/types";
 import { LEAGUE_ID, SEASON_YEAR } from "@/lib/constants";

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:thomaswildetech.com)",
+      "Bash(npx create-next-app@latest espn-wrapped-temp --typescript --tailwind --app --src-dir --no-git --use-npm --eslint --no-import-alias --turbopack)",
+      "Bash(xcopy /E /Y /I \"C:\\\\Users\\\\pp\\\\Downloads\\\\espn-wrapped-temp\\\\*\" \"C:\\\\Users\\\\pp\\\\Downloads\\\\ESPN\"\")",
+      "Bash(npm run build)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2026/segments/0/leagues/1857151557?view=mSettings\")",
+      "Bash(node check-stats.mjs)",
+      "Bash(node check-images.mjs)",
+      "Bash(npx next build)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(taskkill //PID 5440 //F)",
+      "Bash(findstr LISTENING)",
+      "Bash(npm install)",
+      "Bash(taskkill /PID 13524 /F)",
+      "Bash(taskkill //PID 13524 //F)",
+      "Bash(taskkill //PID 23696 //F)",
+      "Bash(taskkill //PID 20024 //F)",
+      "Bash(taskkill //PID 2108 //F)",
+      "Bash(grep -n \"matchupPeriodCount\\\\|finalScoringPeriod\\\\|currentMatchupPeriod\" /c/Users/pp/Downloads/ESPN/src/lib/*.ts)",
+      "Bash(git add next.config.ts package.json package-lock.json src/app/globals.css src/app/layout.tsx src/app/page.tsx src/app/api/espn-image/route.ts src/app/api/espn/route.ts src/components/ src/hooks/ src/lib/)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create espn-fantasy-wrapped --private --source=. --push)",
+      "Bash(git remote add origin https://github.com/holaola213/ESPN-Wrapper.git)",
+      "Bash(git push -u origin master)",
+      "Bash(git add src/lib/data-processor.ts)",
+      "Bash(git push)"
+    ]
+  }
+}

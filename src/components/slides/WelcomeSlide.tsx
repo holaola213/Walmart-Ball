@@ -4,56 +4,56 @@ import { motion } from "framer-motion";
 import { SlideLayout } from "./SlideLayout";
 import { SLIDE_COLORS } from "@/lib/constants";
 import { SlideProps } from "./SlideContainer";
+import { MOTION } from "@/lib/motion";
 
 export function WelcomeSlide({ data, direction }: SlideProps) {
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.welcome} direction={direction}>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="font-stat text-white/30 text-xs uppercase tracking-[0.5em] mb-6"
-      >
-        {data.seasonYear} Regular Season Recap
-      </motion.p>
-
-      <motion.h1
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-        className="font-display text-5xl md:text-7xl lg:text-8xl text-white text-center leading-[0.9]"
-        style={{ textShadow: "0 0 60px rgba(139, 92, 246, 0.3)" }}
-      >
-        {data.leagueName}
-      </motion.h1>
-
+    <SlideLayout accentColor={SLIDE_COLORS.welcome} direction={direction} mood="hero">
       <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 0.7, duration: 0.8 }}
-        className="h-[1px] w-32 mt-6 mb-4"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent)",
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="font-display text-violet-400 text-3xl md:text-4xl tracking-wider"
+        {...MOTION.intro}
+        transition={{ ...MOTION.intro.transition, delay: 0.15 }}
+        className="w-full max-w-5xl"
       >
-        WRAPPED
+        <p className="type-kicker mb-5 text-center md:text-left" style={{ color: `${SLIDE_COLORS.welcome}BE` }}>
+          {data.seasonYear} Regular Season Recap
+        </p>
+
+        <div className="grid md:grid-cols-[1.8fr_1fr] gap-6 md:gap-10 items-end">
+          <div className="text-center md:text-left">
+            <motion.p
+              {...MOTION.reveal}
+              transition={{ ...MOTION.reveal.transition, delay: 0.3 }}
+              className="type-title-xl text-white title-balance"
+              style={{ textShadow: "0 0 38px rgba(139, 157, 255, 0.22)" }}
+            >
+              WRAPPED
+            </motion.p>
+            <motion.h1
+              {...MOTION.reveal}
+              transition={{ ...MOTION.reveal.transition, delay: 0.42 }}
+              className="type-title-md text-white/90 mt-2 break-words title-balance measure-medium mx-auto md:mx-0"
+            >
+              {data.leagueName}
+            </motion.h1>
+          </div>
+
+          <motion.div
+            {...MOTION.hero}
+            transition={{ ...MOTION.hero.transition, delay: 0.55 }}
+            className="glass-strong rounded-2xl px-5 py-4 text-left"
+          >
+            <p className="type-meta text-white/68">Season Scope</p>
+            <div className="mt-3 space-y-2">
+              <p className="font-stat text-base md:text-lg text-white/85 leading-tight">
+                {data.standings.length} teams
+              </p>
+              <p className="font-stat text-base md:text-lg text-white/85 leading-tight">
+                {data.totalMatchupPeriods} weeks
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </motion.div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="mt-8 text-white/20 text-xs font-stat tracking-widest"
-      >
-        {data.standings.length} TEAMS &middot; {data.totalMatchupPeriods} WEEKS
-      </motion.p>
     </SlideLayout>
   );
 }

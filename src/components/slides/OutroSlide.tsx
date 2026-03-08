@@ -4,146 +4,138 @@ import { motion } from "framer-motion";
 import { SlideLayout } from "./SlideLayout";
 import { SLIDE_COLORS, getTeamLogoUrl } from "@/lib/constants";
 import { SlideProps } from "./SlideContainer";
+import { MOTION } from "@/lib/motion";
 
 const SUPERLATIVE_COLORS: Record<string, string> = {
-  "#1 Seed": "#EAB308",
-  "Scoring Machine": "#22C55E",
-  "Hot Streak": "#F97316",
-  "Weekly Warrior": "#22C55E",
-  "Blowout Artist": "#3B82F6",
-  "Draft Day MVP": "#C084FC",
-  "Most Active GM": "#06B6D4",
-  "Trade Dealer": "#A855F7",
-  "Second Half Surge": "#14B8A6",
-  "First Half Hero": "#F97316",
-  "Overachiever": "#34D399",
-  "Nail Biter King": "#EAB308",
-  "Strength of Schedule": "#34D399",
-  "Streaky Scorer": "#FB7185",
-  "Rollercoaster": "#34D399",
-  "Lucky Winner": "#FBBF24",
-  "Slow Starter": "#FB7185",
-  "Couch Potato GM": "#94A3B8",
-  "Easy Street": "#6366F1",
-  "Injury Ward": "#64748B",
-  "Heartbreak Kid": "#EF4444",
-  "Punching Bag": "#EF4444",
-  "Underachiever": "#14B8A6",
-  "Cold Streak": "#6366F1",
-  "Bottom Feeder": "#6366F1",
-  "Peak Performer": "#F59E0B",
-  "Almost": "#8B5CF6",
-  "Season Veteran": "#94A3B8",
-  "Roster Tinkerer": "#06B6D4",
+  "#1 Seed": "#E9C46A",
+  "Scoring Machine": "#5ECF9B",
+  "Hot Streak": "#F0A35E",
+  "Weekly Warrior": "#5ECF9B",
+  "Blowout Artist": "#6EB9FF",
+  "Draft Day MVP": "#B69CFF",
+  "Most Active GM": "#72D5FF",
+  "Trade Dealer": "#B69CFF",
+  "Second Half Surge": "#56C7C1",
+  "First Half Hero": "#F0A35E",
+  "Overachiever": "#67CDA2",
+  "Nail Biter King": "#E9C46A",
+  "Strength of Schedule": "#67CDA2",
+  "Streaky Scorer": "#D29AF3",
+  "Rollercoaster": "#67CDA2",
+  "Lucky Winner": "#E9C46A",
+  "Slow Starter": "#D29AF3",
+  "Couch Potato GM": "#9AA9BF",
+  "Easy Street": "#9EA6FF",
+  "Injury Ward": "#9AA9BF",
+  "Heartbreak Kid": "#F28B82",
+  "Punching Bag": "#F28B82",
+  "Underachiever": "#56C7C1",
+  "Cold Streak": "#9EA6FF",
+  "Bottom Feeder": "#9EA6FF",
+  "Peak Performer": "#E9C46A",
+  "Almost": "#B69CFF",
+  "Season Veteran": "#9AA9BF",
+  "Roster Tinkerer": "#72D5FF",
 };
 
 function getAwardColor(title: string): string {
   if (SUPERLATIVE_COLORS[title]) return SUPERLATIVE_COLORS[title];
   // Check for "Almost X" pattern
-  if (title.startsWith("Almost")) return "#8B5CF6";
-  return "#8B5CF6"; // default violet
+  if (title.startsWith("Almost")) return "#B69CFF";
+  return "#B69CFF";
 }
 
 export function OutroSlide({ data, direction }: SlideProps) {
   const awards = data.teamAwards;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.outro} direction={direction}>
-      {/* Header */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="font-stat text-violet-400/50 text-xs uppercase tracking-[0.5em] mb-3"
-      >
-        That&apos;s a wrap
-      </motion.p>
-
-      <motion.h2
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.35 }}
-        className="font-display text-3xl md:text-5xl text-white text-center mb-1 leading-[0.9]"
-      >
-        {data.leagueName}
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.45 }}
-        className="font-display text-violet-400 text-lg md:text-xl mb-5 tracking-wider"
-      >
-        {data.seasonYear} SEASON
-      </motion.p>
-
-      {/* Yearbook Awards Grid */}
+    <SlideLayout accentColor={SLIDE_COLORS.outro} direction={direction} mood="hero">
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.55 }}
-        className="w-full max-w-md md:max-w-3xl lg:max-w-4xl"
+        {...MOTION.intro}
+        transition={{ ...MOTION.intro.transition, delay: 0.15 }}
+        className="w-full max-w-5xl"
       >
-        <p className="text-white/15 text-[9px] font-stat tracking-[0.3em] uppercase mb-3 text-center">
-          Season Awards
+        <p className="type-kicker text-[#8B9DFF]/70 mb-2 text-center">
+          Season Closed
         </p>
 
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
-          {awards.map((award, i) => {
-            const color = getAwardColor(award.title);
-            return (
-              <motion.div
-                key={award.teamId}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.05 }}
-                className="glass rounded-xl px-2 py-3 md:px-4 md:py-5 text-center flex flex-col items-center gap-1.5"
-              >
-                {data.teamLogoMap[award.teamId] ? (
-                  <img
-                    src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
-                    alt=""
-                    className="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover bg-white/5"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-white/5"
-                    style={{ border: `1px solid rgba(255,255,255,0.1)` }}
-                  >
-                    <span className="text-white/40 text-xs md:text-sm font-display">
-                      {award.teamName.charAt(0)}
-                    </span>
-                  </div>
-                )}
+        <h2 className="type-title-lg text-white text-center break-words title-balance measure-wide mx-auto">
+          {data.leagueName}
+        </h2>
+        <p className="font-display text-[#8B9DFF] text-[clamp(1rem,2.4vw,1.55rem)] mt-1 tracking-[0.08em] text-center">
+          {data.seasonYear} YEARBOOK
+        </p>
 
-                <p className="text-white/50 text-[10px] md:text-xs font-medium leading-tight w-full">
-                  {award.teamName}
-                </p>
+        <motion.div
+          {...MOTION.reveal}
+          transition={{ ...MOTION.reveal.transition, delay: 0.45 }}
+          className="mt-5 mb-4 text-center"
+        >
+          <span className="inline-flex px-4 py-1.5 rounded-full glass type-meta text-white/60">
+            {awards.length} season awards
+          </span>
+        </motion.div>
 
-                <p
-                  className="font-stat text-[8px] md:text-[10px] tracking-wider leading-tight uppercase"
-                  style={{ color: `${color}CC` }}
+        <motion.div
+          {...MOTION.reveal}
+          transition={{ ...MOTION.reveal.transition, delay: 0.6 }}
+          className="w-full max-h-[48vh] overflow-y-auto custom-scrollbar pr-1"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {awards.map((award, i) => {
+              const color = getAwardColor(award.title);
+              return (
+                <motion.div
+                  key={`${award.teamId}-${award.title}-${i}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.68 + i * 0.03 }}
+                  className="glass rounded-xl px-3 py-4 text-center flex flex-col items-center gap-2 min-h-[132px]"
                 >
-                  {award.title}
-                </p>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
+                  {data.teamLogoMap[award.teamId] ? (
+                    <img
+                      src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
+                      alt=""
+                      className="w-10 h-10 rounded-full object-cover bg-white/5"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5"
+                      style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <span className="text-white/45 text-sm font-display">
+                        {award.teamName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
 
-      {/* CTA */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.3 }}
-        className="mt-5 text-violet-400/50 text-[10px] font-stat tracking-widest"
-      >
-        CLICK TO SEE YOUR PERSONAL STATS
-      </motion.p>
+                  <p className="text-white/65 text-sm font-medium leading-tight w-full copy-pretty">
+                    {award.teamName}
+                  </p>
+
+                  <p
+                    className="type-meta leading-tight"
+                    style={{ color: `${color}D9` }}
+                  >
+                    {award.title}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        <motion.p
+          {...MOTION.reveal}
+          transition={{ ...MOTION.reveal.transition, delay: 1.15 }}
+          className="mt-5 text-[#8B9DFF]/65 type-kicker text-center"
+        >
+          Continue to your personal chapter
+        </motion.p>
+      </motion.div>
     </SlideLayout>
   );
 }

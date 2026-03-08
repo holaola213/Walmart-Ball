@@ -23,7 +23,7 @@ export function PersonalPickupSlide({ team, direction }: Props) {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="font-stat text-lime-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+          className="type-kicker text-[#9ACC7B]/80 mb-6"
         >
           Best Pickup
         </motion.p>
@@ -43,7 +43,7 @@ export function PersonalPickupSlide({ team, direction }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-lime-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker text-[#9ACC7B]/80 mb-6"
       >
         Your Best Pickup
       </motion.p>
@@ -53,34 +53,35 @@ export function PersonalPickupSlide({ team, direction }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
         className="glass-strong rounded-2xl p-8 text-center max-w-sm w-full"
-        style={{ boxShadow: "0 0 40px rgba(132, 204, 22, 0.08)" }}
+        style={{ boxShadow: "0 0 40px rgba(154, 204, 123, 0.12)" }}
       >
-        <div className="inline-block px-4 py-1.5 rounded-full glass text-lime-400 text-[10px] font-stat tracking-[0.3em] mb-4">
+        <div className="inline-block px-4 py-1.5 rounded-full glass text-[#9ACC7B] type-meta mb-4">
           FREE AGENT
         </div>
         {pickup.playerId > 0 && (
           <div className="mb-4 flex justify-center">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-lg opacity-30" style={{ background: "#84CC16" }} />
+              <div className="absolute inset-0 rounded-full blur-lg opacity-30" style={{ background: "#9ACC7B" }} />
               <img
                 src={getPlayerHeadshotUrl(pickup.playerId)}
                 alt={pickup.playerName}
-                className="relative w-24 h-24 rounded-full object-cover bg-white/10 border border-lime-500/30"
+                className="relative w-24 h-24 rounded-full object-cover bg-white/10 border"
+                style={{ borderColor: "rgba(154, 204, 123, 0.35)" }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             </div>
           </div>
         )}
-        <div className="font-stat text-lime-400/60 text-[10px] uppercase tracking-[0.3em] mb-2">
+        <div className="type-meta text-[#9ACC7B]/80 mb-2">
           {pickup.position}
         </div>
-        <h3 className="font-display text-4xl text-white mb-4">
+        <h3 className="type-title-md text-white mb-4 title-balance measure-medium mx-auto">
           {pickup.playerName}
         </h3>
-        <div className="font-stat text-5xl font-bold text-lime-400" style={{ textShadow: "0 0 30px rgba(132, 204, 22, 0.3)" }}>
+        <div className="type-number-lg font-bold text-[#9ACC7B]" style={{ textShadow: "0 0 30px rgba(154, 204, 123, 0.3)" }}>
           <StatNumber value={pickup.totalPoints} decimals={1} />
         </div>
-        <p className="text-white/20 text-[10px] font-stat uppercase tracking-widest mt-2">Total Fantasy Points</p>
+        <p className="type-meta text-white/25 mt-2">Total fantasy points</p>
       </motion.div>
     </SlideLayout>
   );

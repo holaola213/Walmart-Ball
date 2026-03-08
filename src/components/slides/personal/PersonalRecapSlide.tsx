@@ -21,7 +21,7 @@ export function PersonalRecapSlide({ team, direction }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-violet-400/50 text-xs uppercase tracking-[0.5em] mb-4"
+        className="type-kicker text-[#8B9DFF]/75 mb-4"
       >
         Your Season
       </motion.p>
@@ -34,7 +34,7 @@ export function PersonalRecapSlide({ team, direction }: Props) {
           src={getTeamLogoUrl(team.logo)}
           alt=""
           className="w-16 h-16 rounded-full object-cover bg-white/10 mb-4"
-          style={{ boxShadow: "0 0 20px rgba(139, 92, 246, 0.2)" }}
+          style={{ boxShadow: "0 0 20px rgba(139, 157, 255, 0.2)" }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       )}
@@ -43,8 +43,8 @@ export function PersonalRecapSlide({ team, direction }: Props) {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
-        className="font-display text-4xl md:text-5xl text-white text-center mb-8"
-        style={{ textShadow: "0 0 30px rgba(139, 92, 246, 0.2)" }}
+        className="type-title-md text-white text-center mb-8 title-balance measure-medium"
+        style={{ textShadow: "0 0 30px rgba(139, 157, 255, 0.2)" }}
       >
         {team.teamName}
       </motion.h3>
@@ -56,22 +56,22 @@ export function PersonalRecapSlide({ team, direction }: Props) {
         className="grid grid-cols-2 gap-3 max-w-xs w-full"
       >
         <div className="glass rounded-xl p-4 text-center">
-          <p className="font-stat text-3xl font-bold text-white">
+          <p className="type-number-lg font-bold text-white">
             {team.record.wins}-{team.record.losses}
           </p>
-          <p className="text-white/25 text-[10px] font-stat mt-1 tracking-widest">RECORD</p>
+          <p className="type-meta text-white/30 mt-1">Record</p>
         </div>
         <div className="glass rounded-xl p-4 text-center">
-          <p className="font-display text-4xl text-violet-400">
+          <p className="type-title-md text-[#8B9DFF]">
             {formatOrdinal(team.rank)}
           </p>
-          <p className="text-white/25 text-[10px] font-stat mt-1 tracking-widest">PLACE</p>
+          <p className="type-meta text-white/30 mt-1">Place</p>
         </div>
         <div className="glass rounded-xl p-4 text-center col-span-2">
-          <p className="font-stat text-3xl font-bold text-white">
+          <p className="type-number-lg font-bold text-white">
             {team.pointsFor.toFixed(1)}
           </p>
-          <p className="text-white/25 text-[10px] font-stat mt-1 tracking-widest">TOTAL POINTS</p>
+          <p className="type-meta text-white/30 mt-1">Total points</p>
         </div>
       </motion.div>
 
@@ -79,7 +79,7 @@ export function PersonalRecapSlide({ team, direction }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.9 }}
-        className="mt-4 text-white/20 text-[10px] font-stat tracking-widest"
+        className="mt-4 type-meta text-white/25"
       >
         {team.totalTransactions} ROSTER MOVES
       </motion.p>

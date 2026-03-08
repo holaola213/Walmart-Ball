@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { SlideLayout } from "./SlideLayout";
 import { SLIDE_COLORS } from "@/lib/constants";
 import { SlideProps } from "./SlideContainer";
+import { formatNumbersInText } from "@/lib/utils";
 
 export function SuperlativesSlide({ data, direction }: SlideProps) {
   return (
@@ -12,12 +13,13 @@ export function SuperlativesSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-pink-300/50 text-xs uppercase tracking-[0.5em] mb-8"
+        className="type-kicker mb-8"
+        style={{ color: `${SLIDE_COLORS.superlatives}C4` }}
       >
         Superlatives
       </motion.p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl w-full">
         {data.superlatives.map((award, i) => (
           <motion.div
             key={i}
@@ -26,13 +28,13 @@ export function SuperlativesSlide({ data, direction }: SlideProps) {
             transition={{ delay: 0.3 + i * 0.08 }}
             className="glass rounded-xl p-4 hover:bg-white/[0.08] transition-colors"
           >
-            <p className="font-stat text-pink-400 text-[10px] font-semibold uppercase tracking-[0.2em]">
+            <p className="type-meta text-[#B69CFF] font-semibold">
               {award.title}
             </p>
-            <p className="text-white font-semibold text-sm mt-1.5">
+            <p className="text-white font-semibold text-[15px] mt-1.5 leading-[1.2] copy-pretty">
               {award.teamName}
             </p>
-            <p className="text-white/25 text-xs mt-1">{award.detail}</p>
+            <p className="text-white/76 text-[13px] leading-[1.35] mt-1 copy-pretty">{formatNumbersInText(award.detail)}</p>
           </motion.div>
         ))}
       </div>

@@ -102,12 +102,20 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
     useSlideNavigation(slides.length);
 
   const handleClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
+    if ((e.target as HTMLElement).closest("button, a, input, textarea, select, [role='button']")) return;
 
-    if (isLast) {
-      onFinished();
+    const clickedRightSide = e.clientX >= window.innerWidth / 2;
+
+    if (clickedRightSide) {
+      if (isLast) {
+        onFinished();
+      } else {
+        goNext();
+      }
     } else {
-      goNext();
+      if (currentIndex > 0) {
+        goPrev();
+      }
     }
   };
 
@@ -138,7 +146,7 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-[#050505] overflow-hidden select-none"
+      className="fixed inset-0 bg-[#05070b] overflow-hidden select-none"
       onClick={handleClick}
     >
       <ProgressBar current={currentIndex} total={slides.length} />
@@ -150,7 +158,7 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
             e.stopPropagation();
             onHome();
           }}
-          className="fixed top-4 left-4 z-50 w-9 h-9 flex items-center justify-center rounded-full glass text-white/20 hover:text-white/60 hover:bg-white/[0.08] transition-all"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-9 h-9 flex items-center justify-center rounded-full glass text-[#9DE8FF]/70 hover:text-white hover:bg-white/[0.12] transition-all"
           aria-label="Back to home"
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
@@ -160,42 +168,9 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
         </button>
       )}
 
-      <AnimatePresence mode="wait" custom={direction}>
+      <AnimatePresence mode="sync" initial={false} custom={direction}>
         {renderSlide()}
       </AnimatePresence>
-
-      {/* Navigation arrows */}
-      {currentIndex > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            goPrev();
-          }}
-          className="fixed left-3 md:left-5 top-1/2 -translate-y-1/2 z-50 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full glass text-white/30 hover:text-white/70 hover:bg-white/[0.1] transition-all"
-          aria-label="Previous slide"
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-      )}
-
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (isLast) {
-            onFinished();
-          } else {
-            goNext();
-          }
-        }}
-        className="fixed right-3 md:right-5 top-1/2 -translate-y-1/2 z-50 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full glass text-white/30 hover:text-white/70 hover:bg-white/[0.1] transition-all"
-        aria-label={isLast ? "See personal stats" : "Next slide"}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M8 4L14 10L8 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
     </div>
   );
 }

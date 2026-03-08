@@ -24,7 +24,7 @@ export function PersonalRivalsSlide({ team, direction }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-blue-400/50 text-xs uppercase tracking-[0.5em] mb-8"
+        className="type-kicker text-blue-400/55 mb-8"
       >
         Head-to-Head Record
       </motion.p>
@@ -42,18 +42,18 @@ export function PersonalRivalsSlide({ team, direction }: Props) {
               transition={{ delay: 0.3 + i * 0.05 }}
               className="flex items-center gap-3 glass rounded-lg px-4 py-2.5 hover:bg-white/[0.08] transition-colors"
             >
-              <span className="flex-1 text-white text-sm min-w-0 break-words leading-tight">
+              <span className="flex-1 text-white text-[15px] min-w-0 break-words leading-[1.2] copy-pretty">
                 {rival.opponentName}
               </span>
               <span
-                className="font-stat font-bold text-sm tracking-wider"
+                className="font-stat font-bold text-[14px] tracking-[0.08em]"
                 style={{
                   color:
                     winPct > 0.5
-                      ? "#22C55E"
+                      ? "#5ECF9B"
                       : winPct < 0.5
-                      ? "#EF4444"
-                      : "#F59E0B",
+                      ? "#F28B82"
+                      : "#E9C46A",
                 }}
               >
                 {rival.wins}-{rival.losses}

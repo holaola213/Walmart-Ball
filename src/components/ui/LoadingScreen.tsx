@@ -18,7 +18,7 @@ export function LoadingScreen({ progress, status }: Props) {
       className="fixed inset-0 flex flex-col items-center justify-center gap-10 grain"
       style={{
         background: `
-          radial-gradient(ellipse at 50% 40%, rgba(249, 115, 22, 0.08) 0%, transparent 60%),
+          radial-gradient(ellipse at 50% 40%, rgba(114, 213, 255, 0.12) 0%, transparent 60%),
           linear-gradient(180deg, #0a0a0a 0%, #050505 100%)
         `,
       }}
@@ -29,11 +29,11 @@ export function LoadingScreen({ progress, status }: Props) {
         transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
       >
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="30" fill="#F97316" stroke="#C2410C" strokeWidth="2" />
-          <path d="M32 2C32 2 32 62 32 62" stroke="#C2410C" strokeWidth="1.5" />
-          <path d="M2 32C2 32 62 32 62 32" stroke="#C2410C" strokeWidth="1.5" />
-          <path d="M8 12C20 20 44 20 56 12" stroke="#C2410C" strokeWidth="1.5" fill="none" />
-          <path d="M8 52C20 44 44 44 56 52" stroke="#C2410C" strokeWidth="1.5" fill="none" />
+          <circle cx="32" cy="32" r="30" fill="#E9C46A" stroke="#8E6E3B" strokeWidth="2" />
+          <path d="M32 2C32 2 32 62 32 62" stroke="#8E6E3B" strokeWidth="1.5" />
+          <path d="M2 32C2 32 62 32 62 32" stroke="#8E6E3B" strokeWidth="1.5" />
+          <path d="M8 12C20 20 44 20 56 12" stroke="#8E6E3B" strokeWidth="1.5" fill="none" />
+          <path d="M8 52C20 44 44 44 56 52" stroke="#8E6E3B" strokeWidth="1.5" fill="none" />
         </svg>
       </motion.div>
 
@@ -42,7 +42,7 @@ export function LoadingScreen({ progress, status }: Props) {
         key={status}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-white/50 text-sm tracking-wider"
+        className="text-white/55 text-[15px] leading-[1.35] copy-pretty measure-medium text-center"
       >
         {statusMessages[status] || "Loading..."}
       </motion.p>
@@ -56,12 +56,12 @@ export function LoadingScreen({ progress, status }: Props) {
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
             style={{
-              background: "linear-gradient(90deg, #F97316, #8B5CF6)",
-              boxShadow: "0 0 16px rgba(249, 115, 22, 0.4)",
+              background: "linear-gradient(90deg, #72D5FF, #8B9DFF)",
+              boxShadow: "0 0 16px rgba(114, 213, 255, 0.35)",
             }}
           />
         </div>
-        <p className="text-white/20 font-stat text-[10px] text-right mt-2 tracking-widest">
+        <p className="text-white/25 type-meta text-right mt-2">
           {Math.round(progress)}%
         </p>
       </div>

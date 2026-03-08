@@ -16,7 +16,7 @@ export function BestWeekSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-green-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker text-[#5ECF9B]/75 mb-6"
       >
         Best Week
       </motion.p>
@@ -27,10 +27,12 @@ export function BestWeekSlide({ data, direction }: SlideProps) {
         transition={{ delay: 0.4 }}
         className="text-center"
       >
-        <div className="font-stat text-7xl md:text-8xl font-bold text-green-400 mb-4" style={{ textShadow: "0 0 40px rgba(34, 197, 94, 0.3)" }}>
+        <div className="type-number-xl font-bold text-[#5ECF9B] mb-4" style={{ textShadow: "0 0 40px rgba(94, 207, 155, 0.3)" }}>
           <StatNumber value={best.score} decimals={1} duration={2000} />
         </div>
-        <p className="text-white/25 text-xs font-stat uppercase tracking-widest mb-8">Points in a single week</p>
+        <p className="font-stat text-[12px] md:text-[13px] text-white/55 tracking-[0.14em] uppercase mb-8">
+          Points in a single week
+        </p>
       </motion.div>
 
       <motion.div
@@ -44,12 +46,12 @@ export function BestWeekSlide({ data, direction }: SlideProps) {
             src={getTeamLogoUrl(data.teamLogoMap[best.teamId])}
             alt=""
             className="w-12 h-12 rounded-full object-cover bg-white/10 mb-3"
-            style={{ boxShadow: "0 0 20px rgba(34, 197, 94, 0.2)" }}
+            style={{ boxShadow: "0 0 20px rgba(94, 207, 155, 0.2)" }}
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         )}
-        <h3 className="font-display text-3xl text-white">{best.teamName}</h3>
-        <p className="text-white/30 text-xs font-stat mt-2 tracking-wider">WEEK {best.week}</p>
+        <h3 className="type-title-md text-white title-balance measure-tight">{best.teamName}</h3>
+        <p className="type-meta text-white/50 mt-2">Week {best.week}</p>
       </motion.div>
 
       {data.bestWeekRunnersUp.length > 0 && (

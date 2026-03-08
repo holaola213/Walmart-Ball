@@ -14,7 +14,8 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-cyan-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker mb-6"
+        style={{ color: `${SLIDE_COLORS.trades}C4` }}
       >
         Trade Summary
       </motion.p>
@@ -25,10 +26,10 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
         transition={{ delay: 0.4 }}
         className="text-center mb-8"
       >
-        <p className="font-stat text-7xl font-bold text-cyan-400" style={{ textShadow: "0 0 40px rgba(6, 182, 212, 0.3)" }}>
+        <p className="type-number-xl font-bold text-[#72D5FF]" style={{ textShadow: "0 0 40px rgba(114, 213, 255, 0.3)" }}>
           {trades.totalTrades}
         </p>
-        <p className="text-white/25 text-[10px] font-stat mt-3 tracking-widest uppercase">
+        <p className="type-meta text-white/66 mt-3">
           {trades.totalTrades === 1 ? "Trade" : "Trades"} this season
         </p>
       </motion.div>
@@ -39,7 +40,7 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="text-white/30 text-[10px] font-stat uppercase tracking-[0.3em] mb-3"
+            className="type-meta text-white/68 mb-3"
           >
             Most Active Trader
           </motion.p>
@@ -48,7 +49,7 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
             className="glass-strong rounded-xl px-6 py-4 text-center flex flex-col items-center"
-            style={{ boxShadow: "0 0 20px rgba(6, 182, 212, 0.08)" }}
+            style={{ boxShadow: "0 0 20px rgba(114, 213, 255, 0.12)" }}
           >
             {data.teamLogoMap[trades.mostActiveTrader.teamId] && (
               <img
@@ -58,10 +59,10 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             )}
-            <p className="text-white font-semibold">
+            <p className="text-white font-semibold text-[15px] leading-[1.2] copy-pretty text-center measure-tight">
               {trades.mostActiveTrader.teamName}
             </p>
-            <p className="font-stat text-cyan-400 text-sm mt-1 tracking-wider">
+            <p className="font-stat text-[#72D5FF] text-[14px] mt-1 tracking-[0.08em]">
               {trades.mostActiveTrader.tradeCount} trades
             </p>
           </motion.div>
@@ -73,7 +74,7 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-white/30 text-sm text-center italic"
+          className="text-white/76 text-[15px] leading-[1.45] text-center italic measure-medium copy-pretty"
         >
           No trades? Y&apos;all need to be more social.
         </motion.p>

@@ -6,7 +6,20 @@ export function standardDeviation(values: number[]): number {
 }
 
 export function formatNumber(num: number, decimals: number = 1): string {
-  return num.toFixed(decimals);
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(num);
+}
+
+export function formatNumbersInText(text: string): string {
+  return text.replace(/-?\d+(?:\.\d+)?/g, (match) => {
+    const value = Number(match);
+    if (!Number.isFinite(value) || Math.abs(value) < 1000) return match;
+    const decimalIndex = match.indexOf(".");
+    const decimals = decimalIndex >= 0 ? match.length - decimalIndex - 1 : 0;
+    return formatNumber(value, decimals);
+  });
 }
 
 export function formatOrdinal(n: number): string {

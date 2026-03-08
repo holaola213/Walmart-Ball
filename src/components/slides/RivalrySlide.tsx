@@ -18,7 +18,7 @@ export function RivalrySlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker mb-6"
         style={{ color: `${accent}80` }}
       >
         Rivalry of the Year
@@ -62,7 +62,7 @@ export function RivalrySlide({ data, direction }: SlideProps) {
               </div>
             )}
           </div>
-          <p className="text-white/60 text-xs font-medium text-center max-w-[100px] leading-tight break-words">
+          <p className="text-white/65 text-[13px] font-medium text-center max-w-[14ch] leading-[1.25] break-words copy-pretty">
             {rivalry.team1Name}
           </p>
         </div>
@@ -116,30 +116,30 @@ export function RivalrySlide({ data, direction }: SlideProps) {
               </div>
             )}
           </div>
-          <p className="text-white/60 text-xs font-medium text-center max-w-[100px] leading-tight break-words">
+          <p className="text-white/65 text-[13px] font-medium text-center max-w-[14ch] leading-[1.25] break-words copy-pretty">
             {rivalry.team2Name}
           </p>
         </div>
       </motion.div>
 
-      {/* H2H Record — the hero stat */}
+      {/* H2H Record - hero stat */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
         className="text-center mb-2"
       >
-        <div className="font-display text-6xl md:text-7xl text-white tracking-wide">
+        <div className="type-title-xl text-white tracking-[0.03em]">
           <span style={{ textShadow: `0 0 30px ${accent}30` }}>
             {rivalry.team1Wins}
           </span>
-          <span className="text-white/15 mx-3">&mdash;</span>
+          <span className="text-white/15 mx-3">-</span>
           <span style={{ textShadow: `0 0 30px ${accent}30` }}>
             {rivalry.team2Wins}
           </span>
         </div>
         {rivalry.ties > 0 && (
-          <p className="text-white/25 text-xs font-stat mt-1 tracking-wider">
+          <p className="type-meta text-white/30 mt-1">
             {rivalry.ties} TIE{rivalry.ties !== 1 ? "S" : ""}
           </p>
         )}
@@ -153,7 +153,7 @@ export function RivalrySlide({ data, direction }: SlideProps) {
         className="px-4 py-1.5 rounded-full glass mb-6"
       >
         <span
-          className="font-stat text-xs tracking-wider"
+          className="type-meta"
           style={{ color: `${accent}90` }}
         >
           AVG MARGIN: {rivalry.avgMargin.toFixed(1)} PTS
@@ -165,7 +165,7 @@ export function RivalrySlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.0 }}
-        className="w-full max-w-xs space-y-1"
+        className="w-full max-w-sm space-y-1"
       >
         {rivalry.matchups.map((m, i) => {
           const t1Won = m.team1Score > m.team2Score;
@@ -179,22 +179,22 @@ export function RivalrySlide({ data, direction }: SlideProps) {
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
               style={{ background: `${accent}06` }}
             >
-              <span className="font-stat text-[10px] text-white/25 tracking-wider w-9 shrink-0">
+              <span className="font-stat text-[11px] text-white/30 tracking-[0.12em] w-10 shrink-0">
                 WK {m.week}
               </span>
               <span
-                className={`font-stat text-xs flex-1 text-right ${
+                className={`font-stat text-[13px] flex-1 text-right ${
                   t1Won ? "text-white/70" : "text-white/30"
                 }`}
                 style={t1Won ? { color: `${accent}90` } : undefined}
               >
                 {m.team1Score.toFixed(1)}
               </span>
-              <span className="text-white/15 text-xs font-stat shrink-0">
-                —
+              <span className="text-white/15 text-[12px] font-stat shrink-0">
+                -
               </span>
               <span
-                className={`font-stat text-xs flex-1 ${
+                className={`font-stat text-[13px] flex-1 ${
                   t2Won ? "text-white/70" : "text-white/30"
                 }`}
                 style={t2Won ? { color: `${accent}90` } : undefined}

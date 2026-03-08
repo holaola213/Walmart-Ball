@@ -14,7 +14,7 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-blue-400/50 text-xs uppercase tracking-[0.5em] mb-8"
+        className="type-kicker text-blue-400/55 mb-8"
       >
         Biggest Blowout
       </motion.p>
@@ -26,8 +26,8 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
         className="glass-strong rounded-2xl p-6 w-full max-w-sm"
         style={{ boxShadow: "0 0 30px rgba(59, 130, 246, 0.08)" }}
       >
-        <p className="text-white/25 text-[10px] font-stat text-center mb-4 tracking-widest">
-          WEEK {blowout.week}
+        <p className="type-meta text-white/30 text-center mb-4">
+          Week {blowout.week}
         </p>
 
         <div className="flex items-center justify-between gap-3">
@@ -41,15 +41,15 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             )}
-            <p className="text-white font-semibold text-xs leading-tight  min-h-[2.5rem] flex items-center justify-center">
+            <p className="text-white font-semibold text-sm leading-[1.2] min-h-[2.5rem] flex items-center justify-center copy-pretty text-center">
               {blowout.winnerName}
             </p>
-            <p className="font-stat text-3xl font-bold text-green-400 mt-1" style={{ textShadow: "0 0 20px rgba(34, 197, 94, 0.2)" }}>
+            <p className="type-number-lg font-bold text-[#5ECF9B] mt-1" style={{ textShadow: "0 0 20px rgba(94, 207, 155, 0.2)" }}>
               {blowout.winnerScore.toFixed(1)}
             </p>
           </div>
 
-          <div className="text-white/15 text-xs font-display text-2xl shrink-0">VS</div>
+          <div className="text-white/15 type-meta shrink-0">VS</div>
 
           <div className="text-center flex-1 min-w-0 flex flex-col items-center">
             {data.teamLogoMap[blowout.loserId] && (
@@ -61,10 +61,10 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             )}
-            <p className="text-white/50 font-semibold text-xs leading-tight  min-h-[2.5rem] flex items-center justify-center">
+            <p className="text-white/55 font-semibold text-sm leading-[1.2] min-h-[2.5rem] flex items-center justify-center copy-pretty text-center">
               {blowout.loserName}
             </p>
-            <p className="font-stat text-3xl font-bold text-red-400 mt-1" style={{ textShadow: "0 0 20px rgba(239, 68, 68, 0.2)" }}>
+            <p className="type-number-lg font-bold text-[#F28B82] mt-1" style={{ textShadow: "0 0 20px rgba(242, 139, 130, 0.2)" }}>
               {blowout.loserScore.toFixed(1)}
             </p>
           </div>
@@ -75,7 +75,7 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-6 font-stat text-blue-400 text-xl font-bold tracking-wider"
+        className="mt-6 font-stat text-blue-400 text-[clamp(1.1rem,2.8vw,1.5rem)] font-bold tracking-[0.08em]"
         style={{ textShadow: "0 0 20px rgba(59, 130, 246, 0.3)" }}
       >
         +{blowout.margin.toFixed(1)} MARGIN

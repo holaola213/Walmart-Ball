@@ -15,12 +15,12 @@ export function CategoryLeadersSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-purple-400/50 text-xs uppercase tracking-[0.5em] mb-8"
+        className="type-kicker text-[#B69CFF]/75 mb-8"
       >
         Category Leaders
       </motion.p>
 
-      <div className="w-full max-w-md space-y-2">
+      <div className="w-full max-w-lg space-y-2">
         {leaders.map((leader, i) => (
           <motion.div
             key={i}
@@ -33,9 +33,9 @@ export function CategoryLeadersSlide({ data, direction }: SlideProps) {
               <p className="text-white font-medium text-sm">
                 {leader.teamName}
               </p>
-              <p className="text-white/25 text-[10px] font-stat tracking-wider mt-0.5">{leader.category}</p>
+              <p className="type-meta text-white/35 mt-0.5">{leader.category}</p>
             </div>
-            <p className="font-stat text-purple-400 font-bold text-lg">
+            <p className="font-stat text-[#B69CFF] font-bold text-[22px] leading-none">
               {leader.value.toFixed(0)}
             </p>
           </motion.div>

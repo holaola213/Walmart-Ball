@@ -17,7 +17,7 @@ import {
   TeamAward,
 } from "./types";
 import { POSITION_MAP } from "./constants";
-import { standardDeviation } from "./utils";
+import { formatNumber, standardDeviation } from "./utils";
 
 export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const teamMap: Record<number, string> = {};
@@ -664,14 +664,14 @@ function computeSuperlatives(
       teamName: teamMap[teamId],
       teamId,
       detail: `${count} lucky wins`,
-      enrichedDetail: `Avg ${avgScore.toFixed(1)} pts vs ${avgMedian.toFixed(1)} median`,
+      enrichedDetail: `Avg ${formatNumber(avgScore, 1)} pts vs ${formatNumber(avgMedian, 1)} median`,
       runnersUp: luckyEntries.slice(1, 5).map(([tid, c]) => {
         const scores = luckyScores.get(tid) || [];
         const avg = scores.length > 0 ? scores.reduce((s, w) => s + w.score, 0) / scores.length : 0;
         const avgMed = scores.length > 0 ? scores.reduce((s, w) => s + w.median, 0) / scores.length : 0;
         return {
           teamName: teamMap[tid], teamId: tid,
-          detail: `${c} lucky wins · Avg ${avg.toFixed(1)} vs ${avgMed.toFixed(1)} median`,
+          detail: `${c} lucky wins · Avg ${formatNumber(avg, 1)} vs ${formatNumber(avgMed, 1)} median`,
         };
       }),
     });
@@ -691,10 +691,10 @@ function computeSuperlatives(
       subtitle: "Led the league in total fantasy points",
       teamName: teamMap[top.id],
       teamId: top.id,
-      detail: `${pts.toFixed(1)} total pts`,
+      detail: `${formatNumber(pts, 1)} total pts`,
       runnersUp: pointsTeams.slice(1, 5).map((t) => ({
         teamName: teamMap[t.id], teamId: t.id,
-        detail: `${(t.record.overall.pointsFor || t.points || 0).toFixed(1)} total pts`,
+        detail: `${formatNumber(t.record.overall.pointsFor || t.points || 0, 1)} total pts`,
       })),
     });
   }
@@ -711,10 +711,10 @@ function computeSuperlatives(
       subtitle: "Had the most total points scored against them",
       teamName: teamMap[top.id],
       teamId: top.id,
-      detail: `${pa.toFixed(1)} pts against`,
+      detail: `${formatNumber(pa, 1)} pts against`,
       runnersUp: paSorted.slice(1, 5).map((t) => ({
         teamName: teamMap[t.id], teamId: t.id,
-        detail: `${(t.record.overall.pointsAgainst || 0).toFixed(1)} pts against`,
+        detail: `${formatNumber(t.record.overall.pointsAgainst || 0, 1)} pts against`,
       })),
     });
   }
@@ -728,7 +728,7 @@ function computeSuperlatives(
       subtitle: "Had the fewest total points scored against them",
       teamName: teamMap[bottom.id],
       teamId: bottom.id,
-      detail: `${pa.toFixed(1)} pts against`,
+      detail: `${formatNumber(pa, 1)} pts against`,
     });
   }
 
@@ -810,10 +810,10 @@ function computeSuperlatives(
       subtitle: "Longest consecutive winning streak of the season",
       teamName: teamMap[winStreaks[0].teamId],
       teamId: winStreaks[0].teamId,
-      detail: `${winStreaks[0].streak} wins in a row · avg ${winStreaks[0].avgScore.toFixed(1)} pts`,
+      detail: `${winStreaks[0].streak} wins in a row · avg ${formatNumber(winStreaks[0].avgScore, 1)} pts`,
       runnersUp: winStreaks.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `${t.streak} wins in a row · avg ${t.avgScore.toFixed(1)} pts`,
+        detail: `${t.streak} wins in a row · avg ${formatNumber(t.avgScore, 1)} pts`,
       })),
     });
   }
@@ -850,10 +850,10 @@ function computeSuperlatives(
       subtitle: "Longest consecutive losing streak of the season",
       teamName: teamMap[lossStreaks[0].teamId],
       teamId: lossStreaks[0].teamId,
-      detail: `${lossStreaks[0].streak} losses in a row · avg ${lossStreaks[0].avgScore.toFixed(1)} pts`,
+      detail: `${lossStreaks[0].streak} losses in a row · avg ${formatNumber(lossStreaks[0].avgScore, 1)} pts`,
       runnersUp: lossStreaks.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `${t.streak} losses in a row · avg ${t.avgScore.toFixed(1)} pts`,
+        detail: `${t.streak} losses in a row · avg ${formatNumber(t.avgScore, 1)} pts`,
       })),
     });
   }
@@ -879,10 +879,10 @@ function computeSuperlatives(
       subtitle: "Loves to run up the score \u2014 most wins by 100+",
       teamName: teamMap[top.teamId],
       teamId: top.teamId,
-      detail: `${top.count} blowout wins · biggest +${top.biggestMargin.toFixed(1)}`,
+      detail: `${top.count} blowout wins · biggest +${formatNumber(top.biggestMargin, 1)}`,
       runnersUp: blowoutData.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `${t.count} wins · +${t.biggestMargin.toFixed(1)} max`,
+        detail: `${t.count} wins · +${formatNumber(t.biggestMargin, 1)} max`,
       })),
     });
   }
@@ -933,11 +933,11 @@ function computeSuperlatives(
       subtitle: "Most games decided by fewer than 20 points",
       teamName: teamMap[top.teamId],
       teamId: top.teamId,
-      detail: `${top.count} close games · avg margin ${top.avgMargin.toFixed(1)} pts`,
+      detail: `${top.count} close games · avg margin ${formatNumber(top.avgMargin, 1)} pts`,
       closeGameMatchups: nailBiterMatchups,
       runnersUp: closeGameData.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `${t.count} games · ${t.avgMargin.toFixed(1)} avg`,
+        detail: `${t.count} games · ${formatNumber(t.avgMargin, 1)} avg`,
       })),
     });
   }
@@ -1050,7 +1050,7 @@ function computeSuperlatives(
       subtitle: "Biggest average score swing from week to week",
       teamName: teamMap[biggestSwing.teamId],
       teamId: biggestSwing.teamId,
-      detail: `\u00B1${biggestSwing.avgSwing.toFixed(1)} pts avg swing`,
+      detail: `\u00B1${formatNumber(biggestSwing.avgSwing, 1)} pts avg swing`,
     });
   }
 
@@ -1152,10 +1152,10 @@ function computeSuperlatives(
       subtitle: "Most times posting the league's highest score in a week",
       teamName: teamMap[teamId],
       teamId,
-      detail: `${count} weekly highs · best: ${bestScore.toFixed(1)} pts`,
+      detail: `${count} weekly highs · best: ${formatNumber(bestScore, 1)} pts`,
       runnersUp: highEntries.slice(1, 5).map(([tid, d]) => ({
         teamName: teamMap[tid], teamId: tid,
-        detail: `${d.count} weekly highs · best: ${d.bestScore.toFixed(1)} pts`,
+        detail: `${d.count} weekly highs · best: ${formatNumber(d.bestScore, 1)} pts`,
       })),
     });
   }
@@ -1190,10 +1190,10 @@ function computeSuperlatives(
       subtitle: "Most times posting the league's lowest score in a week",
       teamName: teamMap[teamId],
       teamId,
-      detail: `${count} weekly lows · worst: ${worstScore.toFixed(1)} pts`,
+      detail: `${count} weekly lows · worst: ${formatNumber(worstScore, 1)} pts`,
       runnersUp: lowEntries.slice(1, 5).map(([tid, d]) => ({
         teamName: teamMap[tid], teamId: tid,
-        detail: `${d.count} weekly lows · worst: ${d.worstScore.toFixed(1)} pts`,
+        detail: `${d.count} weekly lows · worst: ${formatNumber(d.worstScore, 1)} pts`,
       })),
     });
   }
@@ -1244,10 +1244,10 @@ function computeSuperlatives(
       subtitle: "Faced the toughest opponents all season",
       teamName: teamMap[top.teamId],
       teamId: top.teamId,
-      detail: `avg opponent: ${top.avgOpponent.toFixed(1)} pts/wk`,
+      detail: `avg opponent: ${formatNumber(top.avgOpponent, 1)} pts/wk`,
       runnersUp: sosData.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `avg opponent: ${t.avgOpponent.toFixed(1)} pts/wk`,
+        detail: `avg opponent: ${formatNumber(t.avgOpponent, 1)} pts/wk`,
       })),
     });
   }
@@ -1278,10 +1278,10 @@ function computeSuperlatives(
       subtitle: "Their draft picks produced the most fantasy points",
       teamName: teamMap[top.teamId],
       teamId: top.teamId,
-      detail: `${top.totalPts.toFixed(1)} pts from ${top.playerCount} drafted players`,
+      detail: `${formatNumber(top.totalPts, 1)} pts from ${top.playerCount} drafted players`,
       runnersUp: draftProduction.slice(1, 5).map((t) => ({
         teamName: teamMap[t.teamId], teamId: t.teamId,
-        detail: `${t.totalPts.toFixed(1)} pts from ${t.playerCount} drafted players`,
+        detail: `${formatNumber(t.totalPts, 1)} pts from ${t.playerCount} drafted players`,
       })),
     });
   }
@@ -1511,7 +1511,7 @@ function computeTeamAwards(
       // Try to find something unique about them
       if (td.bestWeek && td.bestWeek.score > 0) {
         title = "Peak Performer";
-        detail = `${td.bestWeek.score.toFixed(1)} pts in Week ${td.bestWeek.week}`;
+        detail = `${formatNumber(td.bestWeek.score, 1)} pts in Week ${td.bestWeek.week}`;
       } else if (td.totalTransactions > 0) {
         title = "Roster Tinkerer";
         detail = `${td.totalTransactions} moves`;

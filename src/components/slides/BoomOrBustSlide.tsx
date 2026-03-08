@@ -5,6 +5,7 @@ import { SlideLayout } from "./SlideLayout";
 import { SLIDE_COLORS, getTeamLogoUrl } from "@/lib/constants";
 import { RunnersUpList } from "@/components/ui/RunnersUpList";
 import { SlideProps } from "./SlideContainer";
+import { formatNumber } from "@/lib/utils";
 
 export function BoomOrBustSlide({ data, direction }: SlideProps) {
   const team = data.boomOrBust;
@@ -15,7 +16,8 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-pink-400/50 text-xs uppercase tracking-[0.5em] mb-6"
+        className="type-kicker mb-6"
+        style={{ color: `${SLIDE_COLORS.boomBust}C0` }}
       >
         Boom or Bust
       </motion.p>
@@ -28,7 +30,7 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
           src={getTeamLogoUrl(data.teamLogoMap[team.teamId])}
           alt=""
           className="w-16 h-16 rounded-full object-cover bg-white/10 mb-4"
-          style={{ boxShadow: "0 0 20px rgba(236, 72, 153, 0.2)" }}
+          style={{ boxShadow: "0 0 20px rgba(210, 154, 243, 0.2)" }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       )}
@@ -37,8 +39,8 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="font-display text-4xl md:text-5xl text-white text-center mb-8"
-        style={{ textShadow: "0 0 30px rgba(236, 72, 153, 0.2)" }}
+        className="type-title-md text-white text-center mb-8 title-balance measure-medium"
+        style={{ textShadow: "0 0 30px rgba(210, 154, 243, 0.2)" }}
       >
         {team.teamName}
       </motion.h3>
@@ -50,16 +52,16 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
         className="flex gap-6 text-center"
       >
         <div className="glass rounded-xl px-6 py-4">
-          <p className="font-stat text-3xl font-bold text-pink-400">
-            {team.averageScore.toFixed(1)}
+          <p className="type-number-lg font-bold text-[#D29AF3]">
+            {formatNumber(team.averageScore, 1)}
           </p>
-          <p className="text-white/25 text-[10px] font-stat mt-1 tracking-widest">AVG PTS/WK</p>
+          <p className="type-meta text-white/66 mt-1">Avg pts/wk</p>
         </div>
         <div className="glass rounded-xl px-6 py-4">
-          <p className="font-stat text-3xl font-bold text-pink-400">
-            {team.standardDeviation.toFixed(1)}
+          <p className="type-number-lg font-bold text-[#D29AF3]">
+            {formatNumber(team.standardDeviation, 1)}
           </p>
-          <p className="text-white/25 text-[10px] font-stat mt-1 tracking-widest">STD DEV</p>
+          <p className="type-meta text-white/66 mt-1">Std dev</p>
         </div>
       </motion.div>
 
@@ -67,7 +69,7 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.9 }}
-        className="mt-8 text-white/30 text-sm text-center max-w-xs italic"
+        className="mt-8 text-white/76 text-[15px] leading-[1.45] text-center measure-medium copy-pretty italic"
       >
         A wild ride every week. Either dominating or getting destroyed.
       </motion.p>
@@ -78,7 +80,7 @@ export function BoomOrBustSlide({ data, direction }: SlideProps) {
           delay={1.1}
           items={data.boomOrBustRunnersUp.map((t) => ({
             label: t.teamName,
-            value: `${t.averageScore.toFixed(1)} avg / ${t.standardDeviation.toFixed(1)} SD`,
+            value: `${formatNumber(t.averageScore, 1)} avg / ${formatNumber(t.standardDeviation, 1)} SD`,
             avatarUrl: data.teamLogoMap[t.teamId] ? getTeamLogoUrl(data.teamLogoMap[t.teamId]) : undefined,
           }))}
         />

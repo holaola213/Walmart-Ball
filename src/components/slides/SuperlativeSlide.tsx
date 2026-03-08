@@ -5,6 +5,7 @@ import { SlideLayout } from "./SlideLayout";
 import { getTeamLogoUrl, SUPERLATIVE_COLORS } from "@/lib/constants";
 import { Superlative } from "@/lib/types";
 import { RunnersUpList } from "@/components/ui/RunnersUpList";
+import { formatNumber, formatNumbersInText } from "@/lib/utils";
 
 interface Props {
   award: Superlative;
@@ -26,7 +27,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="font-stat text-xs uppercase tracking-[0.5em] mb-4"
+        className="type-kicker mb-4"
         style={{ color: `${accentColor}80` }}
       >
         Award
@@ -85,7 +86,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className={`font-display text-white text-center ${isHeartbreakDetailed || isNailBiterDetailed ? "text-4xl md:text-5xl mb-1" : "text-5xl md:text-6xl lg:text-7xl"}`}
+        className={`font-display text-white text-center title-balance ${isHeartbreakDetailed || isNailBiterDetailed ? "type-title-md mb-1 measure-medium" : "type-title-lg measure-wide"}`}
         style={{ textShadow: `0 0 40px ${accentColor}30` }}
       >
         {award.title}
@@ -96,7 +97,8 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className={`text-white/40 text-sm text-center max-w-md ${isHeartbreakDetailed || isNailBiterDetailed ? "mt-1 mb-3" : "mt-3"}`}
+        className={`font-medium text-[15px] leading-[1.45] text-center copy-pretty measure-medium ${isHeartbreakDetailed || isNailBiterDetailed ? "mt-1 mb-3" : "mt-3"}`}
+        style={{ color: `${accentColor}CC` }}
       >
         {award.subtitle}
       </motion.p>
@@ -139,7 +141,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                       className="w-8 h-8 rounded-full flex items-center justify-center border"
                       style={{ borderColor: `${accentColor}40`, background: `${accentColor}15` }}
                     >
-                      <span className="font-display text-white/50 text-sm">{t.teamName.charAt(0)}</span>
+                      <span className="font-display text-sm" style={{ color: `${accentColor}D9` }}>{t.teamName.charAt(0)}</span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -149,7 +151,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                     >
                       {t.teamName}
                     </p>
-                    <p className="font-stat text-[10px] text-white/30 tracking-wider">
+                    <p className="type-meta text-white/65">
                       {matchups.length} CLOSE LOSS{matchups.length !== 1 ? "ES" : ""}
                     </p>
                   </div>
@@ -157,14 +159,14 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                 {/* Matchup list */}
                 <div className="space-y-1">
                   {matchups.map((mu, mi) => (
-                    <div key={mi} className="flex items-center text-[11px] font-stat gap-2 px-1">
-                      <span className="text-white/20 w-10 shrink-0 tracking-wider">WK {mu.week}</span>
-                      <span className="text-red-400/80">{mu.score.toFixed(1)}</span>
-                      <span className="text-white/15">-</span>
-                      <span className="text-white/40">{mu.oppScore.toFixed(1)}</span>
-                      <span className="text-red-400/50 text-[9px] shrink-0">(-{(mu.oppScore - mu.score).toFixed(1)})</span>
-                      <span className="text-white/15 text-[10px]">vs</span>
-                      <span className="text-white/25 text-[10px] truncate">{mu.oppName}</span>
+                    <div key={mi} className="flex items-center text-[12px] font-stat gap-2 px-1">
+                      <span className="text-white/60 w-10 shrink-0 tracking-wider">WK {mu.week}</span>
+                      <span className="text-[#F28B82]/90">{formatNumber(mu.score, 1)}</span>
+                      <span className="text-white/70">-</span>
+                      <span className="text-white/75">{formatNumber(mu.oppScore, 1)}</span>
+                      <span className="text-[#F28B82]/75 text-[10px] shrink-0">(-{formatNumber(mu.oppScore - mu.score, 1)})</span>
+                      <span className="text-white/72 text-[11px]">vs</span>
+                      <span className="text-white/70 text-[11px] truncate">{mu.oppName}</span>
                     </div>
                   ))}
                 </div>
@@ -207,7 +209,7 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                     className="w-10 h-10 rounded-full flex items-center justify-center border-2"
                     style={{ borderColor: `${accentColor}50`, background: `${accentColor}15` }}
                   >
-                    <span className="font-display text-white/50 text-base">{award.teamName.charAt(0)}</span>
+                    <span className="font-display text-base" style={{ color: `${accentColor}D9` }}>{award.teamName.charAt(0)}</span>
                   </div>
                 );
               })()}
@@ -215,22 +217,22 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                 <p className="font-display text-lg leading-tight" style={{ color: accentColor }}>
                   {award.teamName}
                 </p>
-                <p className="font-stat text-[10px] text-white/30 tracking-wider">
+                <p className="type-meta text-white/65">
                   {award.closeGameMatchups.length} CLOSE GAME{award.closeGameMatchups.length !== 1 ? "S" : ""}
                 </p>
               </div>
             </div>
             <div className="space-y-1">
               {award.closeGameMatchups.map((mu, mi) => (
-                <div key={mi} className="flex items-center text-[11px] font-stat gap-2 px-1">
-                  <span className="text-white/20 w-10 shrink-0 tracking-wider">WK {mu.week}</span>
-                  <span className={mu.won ? "text-green-400/80" : "text-red-400/80"}>{mu.score.toFixed(1)}</span>
-                  <span className="text-white/15">-</span>
-                  <span className="text-white/40">{mu.oppScore.toFixed(1)}</span>
-                  <span className={`text-[9px] font-bold tracking-wider ${mu.won ? "text-green-400/50" : "text-red-400/50"}`}>
+                <div key={mi} className="flex items-center text-[12px] font-stat gap-2 px-1">
+                  <span className="text-white/60 w-10 shrink-0 tracking-wider">WK {mu.week}</span>
+                  <span className={mu.won ? "text-[#5ECF9B]/90" : "text-[#F28B82]/90"}>{formatNumber(mu.score, 1)}</span>
+                  <span className="text-white/70">-</span>
+                  <span className="text-white/75">{formatNumber(mu.oppScore, 1)}</span>
+                  <span className={`text-[10px] font-bold tracking-wider ${mu.won ? "text-[#5ECF9B]/80" : "text-[#F28B82]/80"}`}>
                     {mu.won ? "W" : "L"}
                   </span>
-                  <span className="text-white/25 text-[10px] truncate">{mu.oppName}</span>
+                  <span className="text-white/70 text-[11px] truncate">{mu.oppName}</span>
                 </div>
               ))}
             </div>
@@ -268,12 +270,12 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                 </p>
                 {!isTied && (
                   <>
-                    <p className="mt-2 font-stat text-white/50 text-sm tracking-wider">
-                      {award.detail}
+                    <p className="mt-2 font-stat text-white/85 text-[14px] tracking-[0.08em]">
+                      {formatNumbersInText(award.detail)}
                     </p>
                     {award.enrichedDetail && (
-                      <p className="mt-1 font-stat text-white/30 text-xs tracking-wider">
-                        {award.enrichedDetail}
+                      <p className="mt-1 text-white/72 text-[13px] leading-[1.35] copy-pretty">
+                        {formatNumbersInText(award.enrichedDetail)}
                       </p>
                     )}
                   </>
@@ -281,8 +283,8 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
               </div>
             ))}
             {isTied && (
-              <p className="w-full mt-2 font-stat text-white/50 text-sm tracking-wider text-center">
-                {award.detail} each
+              <p className="w-full mt-2 font-stat text-white/85 text-[14px] tracking-[0.08em] text-center">
+                {formatNumbersInText(award.detail)} each
               </p>
             )}
           </motion.div>
