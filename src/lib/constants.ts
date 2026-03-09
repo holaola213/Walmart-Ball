@@ -68,6 +68,7 @@ export const SLIDE_COLORS: Record<string, string> = {
   personalRecap: "#66E4FF",
   personalBest: "#42F5B5",
   personalMvp: "#FF8F5E",
+  personalDraft: "#F4C542",
   personalRivals: "#4FA7FF",
   personalPickup: "#8CFF72",
 };

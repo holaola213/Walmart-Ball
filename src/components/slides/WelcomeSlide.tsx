@@ -15,13 +15,13 @@ export function WelcomeSlide({ data, direction }: SlideProps) {
       <motion.div
         {...MOTION.intro}
         transition={{ ...MOTION.intro.transition, delay: 0.15 }}
-        className="w-full max-w-5xl"
+        className="w-full max-w-5xl -translate-y-8 md:-translate-y-14"
       >
         <p className="type-kicker mb-5 text-center md:text-left" style={{ color: `${SLIDE_COLORS.welcome}BE` }}>
           {data.seasonYear} Regular Season Recap
         </p>
 
-        <div className="grid md:grid-cols-[1.6fr_1fr] gap-6 md:gap-10 items-end">
+        <div className="grid md:grid-cols-[1.6fr_1fr] gap-6 md:gap-10 items-start">
           <div className="text-center md:text-left">
             <motion.h1
               {...MOTION.reveal}

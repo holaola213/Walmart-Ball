@@ -10,6 +10,7 @@ export interface ESPNLeagueResponse {
   schedule: ESPNMatchup[];
   transactions?: ESPNTransaction[];
   activityTopics?: ESPNActivityTopic[];
+  draftDetail?: ESPNDraftDetail;
   historicalRostersByScoringPeriod?: Record<number, ESPNTeam[]>;
   members?: ESPNMember[];
   status: {
@@ -157,6 +158,26 @@ export interface ESPNActivityMessage {
   from?: number;
   to?: number;
   for?: number;
+}
+
+export interface ESPNDraftDetail {
+  completeDate?: number;
+  drafted?: boolean;
+  inProgress?: boolean;
+  picks?: ESPNDraftPick[];
+}
+
+export interface ESPNDraftPick {
+  id: number;
+  playerId: number;
+  teamId: number;
+  overallPickNumber: number;
+  roundId: number;
+  roundPickNumber: number;
+  lineupSlotId?: number;
+  autoDraftTypeId?: number;
+  bidAmount?: number;
+  keeper?: boolean;
 }
 
 export interface ESPNMember {
@@ -349,6 +370,7 @@ export interface TeamWrappedData {
   mvpPlayer: PlayerHighlight | null;
   bestPickup: PlayerHighlight | null;
   topPickups: PlayerHighlight[];
+  draftReview: DraftReviewSummary;
   weeklyScores: number[];
   totalTransactions: number;
   rivals: RivalRecord[];
@@ -361,4 +383,21 @@ export interface RivalRecord {
   wins: number;
   losses: number;
   ties: number;
+}
+
+export interface DraftReviewPlayer {
+  playerName: string;
+  playerId: number;
+  position: string;
+  draftPick: number;
+  teamPick: number;
+  actualRank: number;
+  rankDelta: number;
+  totalPoints: number;
+}
+
+export interface DraftReviewSummary {
+  picks: DraftReviewPlayer[];
+  bestValue: DraftReviewPlayer | null;
+  worstValue: DraftReviewPlayer | null;
 }

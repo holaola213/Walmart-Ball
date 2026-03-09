@@ -5,6 +5,7 @@ import { useSlideNavigation } from "@/hooks/useSlideNavigation";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { TeamWrappedData } from "@/lib/types";
 import { PersonalRecapSlide } from "./PersonalRecapSlide";
+import { PersonalDraftSlide } from "./PersonalDraftSlide";
 import { PersonalBestWeekSlide } from "./PersonalBestWeekSlide";
 import { PersonalMvpSlide } from "./PersonalMvpSlide";
 import { PersonalRivalsSlide } from "./PersonalRivalsSlide";
@@ -20,6 +21,7 @@ type PersonalSlideComponent = React.ComponentType<PersonalSlideProps>;
 
 const PERSONAL_SLIDES: { component: PersonalSlideComponent; id: string }[] = [
   { component: PersonalRecapSlide, id: "recap" },
+  { component: PersonalDraftSlide, id: "draft" },
   { component: PersonalBestWeekSlide, id: "bestWeek" },
   { component: PersonalMvpSlide, id: "mvp" },
   { component: PersonalRivalsSlide, id: "rivals" },

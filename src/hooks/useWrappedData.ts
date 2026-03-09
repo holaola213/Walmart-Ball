@@ -87,7 +87,7 @@ export function useWrappedData() {
 
       // Fetch 1: Teams, Settings, Standings
       setProgress(10);
-      const res1 = await fetch(`${base}&views=mTeam,mSettings,mStandings,mRoster`);
+      const res1 = await fetch(`${base}&views=mTeam,mSettings,mStandings,mRoster,mDraftDetail`);
       if (!res1.ok) {
         const err = await res1.json().catch(() => ({ error: "Unknown error" }));
         throw new Error(err.error || `ESPN returned ${res1.status}`);

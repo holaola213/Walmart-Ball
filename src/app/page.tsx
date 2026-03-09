@@ -132,7 +132,11 @@ export default function Home() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="type-kicker text-white/35 mb-6"
+          className="type-kicker mb-6"
+          style={{
+            color: "#72D5FF",
+            textShadow: "0 0 24px rgba(114, 213, 255, 0.35)",
+          }}
         >
           Fantasy Basketball
         </motion.p>
@@ -165,7 +169,7 @@ export default function Home() {
           transition={{ delay: 0.8 }}
           className="text-[#8B9DFF]/70 text-[15px] leading-[1.35] mb-14 copy-pretty"
         >
-          Your season, recapped.
+          Commissioner Richard
         </motion.p>
 
         {/* Season selector cards */}

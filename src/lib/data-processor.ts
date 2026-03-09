@@ -18,13 +18,22 @@ import {
   RivalryHighlight,
   CategoryLeader,
   TeamAward,
+  DraftReviewSummary,
+  DraftReviewPlayer,
   ESPNPlayerStat,
   ESPNTransaction,
   ESPNActivityTopic,
+  ESPNDraftDetail,
   ESPNRosterEntry,
 } from "./types";
 import { POSITION_MAP } from "./constants";
 import { formatNumber, standardDeviation } from "./utils";
+
+const EMPTY_DRAFT_REVIEW: DraftReviewSummary = {
+  picks: [],
+  bestValue: null,
+  worstValue: null,
+};
 
 export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const teamMap: Record<number, string> = {};
@@ -37,6 +46,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   }
 
   const seasonId = raw.seasonId;
+  const historicalRosters = raw.historicalRostersByScoringPeriod || {};
 
   const standings = computeStandings(raw.teams, teamMap);
   const champion = standings[0];
@@ -54,7 +64,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const worstWeek = topWorstWeeks[0] || { teamName: "", teamId: 0, week: 0, score: 0 };
   const worstWeekRunnersUp = topWorstWeeks.slice(1);
   const topWorstFantasyGames = findWorstFantasyGames(
-    raw.historicalRostersByScoringPeriod || {},
+    historicalRosters,
     teamMap,
     scoringPeriodToMatchupPeriod,
     seasonId,
@@ -81,7 +91,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     raw.activityTopics || [],
     raw.transactions || [],
     raw.teams,
-    raw.historicalRostersByScoringPeriod || {},
+    historicalRosters,
     teamMap,
     scoringPeriodToMatchupPeriod,
     seasonId
@@ -90,7 +100,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     raw.activityTopics || [],
     raw.transactions || [],
     raw.teams,
-    raw.historicalRostersByScoringPeriod || {},
+    historicalRosters,
     teamMap,
     scoringPeriodToMatchupPeriod,
     seasonId
@@ -105,9 +115,17 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     seasonId,
     "ADD",
     999,
-    raw.historicalRostersByScoringPeriod || {},
+    historicalRosters,
     scoringPeriodToMatchupPeriod,
     pickupLookup
+  );
+  const playerInfoLookup = buildPlayerInfoLookup(raw.teams, historicalRosters);
+  const draftReviewByTeam = buildDraftReviewByTeam(
+    raw.teams,
+    raw.draftDetail,
+    historicalRosters,
+    playerInfoLookup,
+    seasonId
   );
   const topWaiverPlayers = allWaiverPickups.slice(0, 10);
   const waiverMvp = topWaiverPlayers[0] || { playerName: "N/A", playerId: 0, teamName: "", teamId: 0, totalPoints: 0, acquisitionType: "ADD", position: "" };
@@ -151,7 +169,8 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
       teamLogoMap,
       seasonId,
       bestPickupByTeam.get(team.id) || null,
-      topPickupsByTeam.get(team.id) || []
+      topPickupsByTeam.get(team.id) || [],
+      draftReviewByTeam.get(team.id) || EMPTY_DRAFT_REVIEW
     );
   }
 
@@ -396,6 +415,213 @@ function computeTradeSummary(
     },
     tradeDetails,
   };
+}
+
+function buildDraftReviewByTeam(
+  teams: ESPNTeam[],
+  draftDetail: ESPNDraftDetail | undefined,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  playerInfoLookup: Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }>,
+  seasonId: number
+): Map<number, DraftReviewSummary> {
+  const reviewByTeam = new Map<number, DraftReviewSummary>();
+  const draftedSelections: Array<{
+    teamId: number;
+    playerId: number;
+    acquisitionDate: number;
+    playerName: string;
+    position: string;
+    totalPoints: number;
+  }> = [];
+
+  const draftPicks = [...(draftDetail?.picks || [])]
+    .filter(
+      (pick) =>
+        typeof pick.playerId === "number" &&
+        typeof pick.teamId === "number" &&
+        typeof pick.overallPickNumber === "number"
+    )
+    .sort(
+      (a, b) =>
+        a.overallPickNumber - b.overallPickNumber ||
+        a.roundId - b.roundId ||
+        a.roundPickNumber - b.roundPickNumber
+    );
+
+  if (draftPicks.length > 0) {
+    for (const pick of draftPicks) {
+      const playerInfo = playerInfoLookup.get(pick.playerId);
+      draftedSelections.push({
+        teamId: pick.teamId,
+        playerId: pick.playerId,
+        acquisitionDate: pick.overallPickNumber,
+        playerName: playerInfo?.playerName || `Player ${pick.playerId}`,
+        position: playerInfo?.position || "UTIL",
+        totalPoints: getSeasonTotalPoints(playerInfo?.stats, seasonId),
+      });
+    }
+  } else {
+    for (const team of teams) {
+      const draftedEntries = getTeamDraftEntries(team, historicalRostersByScoringPeriod);
+
+      for (const entry of draftedEntries) {
+        const playerInfo = playerInfoLookup.get(entry.playerId);
+        const fallbackPlayer = entry.playerPoolEntry?.player;
+        draftedSelections.push({
+          teamId: team.id,
+          playerId: entry.playerId,
+          acquisitionDate: entry.acquisitionDate || 0,
+          playerName:
+            playerInfo?.playerName ||
+            fallbackPlayer?.fullName ||
+            `Player ${entry.playerId}`,
+          position:
+            playerInfo?.position ||
+            POSITION_MAP[fallbackPlayer?.defaultPositionId || 0] ||
+            "UTIL",
+          totalPoints: getSeasonTotalPoints(
+            playerInfo?.stats || fallbackPlayer?.stats,
+            seasonId
+          ),
+        });
+      }
+    }
+  }
+
+  draftedSelections.sort(
+    (a, b) =>
+      a.acquisitionDate - b.acquisitionDate ||
+      a.teamId - b.teamId ||
+      a.playerId - b.playerId
+  );
+
+  const draftPickMap = new Map<number, number>();
+  const teamPickMap = new Map<string, number>();
+  const teamPickCounter = new Map<number, number>();
+
+  draftedSelections.forEach((selection, index) => {
+    draftPickMap.set(selection.playerId, index + 1);
+    const nextTeamPick = (teamPickCounter.get(selection.teamId) || 0) + 1;
+    teamPickCounter.set(selection.teamId, nextTeamPick);
+    teamPickMap.set(getPickupKey(selection.teamId, selection.playerId), nextTeamPick);
+  });
+
+  const actualRankMap = new Map<number, number>();
+  [...draftedSelections]
+    .sort(
+      (a, b) =>
+        b.totalPoints - a.totalPoints ||
+        a.playerName.localeCompare(b.playerName)
+    )
+    .forEach((selection, index) => {
+      actualRankMap.set(selection.playerId, index + 1);
+    });
+
+  for (const team of teams) {
+    const picks = draftedSelections
+      .filter((selection) => selection.teamId === team.id)
+      .map((selection): DraftReviewPlayer => {
+        const draftPick = draftPickMap.get(selection.playerId) || 0;
+        const actualRank = actualRankMap.get(selection.playerId) || 0;
+        return {
+          playerName: selection.playerName,
+          playerId: selection.playerId,
+          position: selection.position,
+          draftPick,
+          teamPick: teamPickMap.get(getPickupKey(team.id, selection.playerId)) || 0,
+          actualRank,
+          rankDelta: draftPick - actualRank,
+          totalPoints: selection.totalPoints,
+        };
+      })
+      .sort((a, b) => a.draftPick - b.draftPick);
+
+    const bestValue =
+      [...picks].sort(
+        (a, b) =>
+          b.rankDelta - a.rankDelta ||
+          a.actualRank - b.actualRank ||
+          b.totalPoints - a.totalPoints
+      )[0] || null;
+    const worstValue =
+      [...picks].sort(
+        (a, b) =>
+          a.rankDelta - b.rankDelta ||
+          b.actualRank - a.actualRank ||
+          a.totalPoints - b.totalPoints
+      )[0] || null;
+
+    reviewByTeam.set(team.id, {
+      picks,
+      bestValue,
+      worstValue,
+    });
+  }
+
+  return reviewByTeam;
+}
+
+function getTeamDraftEntries(
+  team: ESPNTeam,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>
+): ESPNRosterEntry[] {
+  const rosterVersions: ESPNTeam[] = [team];
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  for (const scoringPeriod of scoringPeriods) {
+    const rosterTeam = historicalRostersByScoringPeriod[scoringPeriod]?.find(
+      (candidate) => candidate.id === team.id
+    );
+    if (rosterTeam) {
+      rosterVersions.push(rosterTeam);
+    }
+  }
+
+  const draftedByPlayer = new Map<number, ESPNRosterEntry>();
+  const fallbackByPlayer = new Map<number, ESPNRosterEntry>();
+
+  for (const rosterTeam of rosterVersions) {
+    for (const entry of rosterTeam.roster?.entries || []) {
+      const existingFallback = fallbackByPlayer.get(entry.playerId);
+      if (
+        !existingFallback ||
+        (entry.acquisitionDate || 0) < (existingFallback.acquisitionDate || 0)
+      ) {
+        fallbackByPlayer.set(entry.playerId, entry);
+      }
+
+      if (entry.acquisitionType !== "DRAFT") continue;
+
+      const existingDraft = draftedByPlayer.get(entry.playerId);
+      if (
+        !existingDraft ||
+        (entry.acquisitionDate || 0) < (existingDraft.acquisitionDate || 0)
+      ) {
+        draftedByPlayer.set(entry.playerId, entry);
+      }
+    }
+  }
+
+  const draftedEntries = [...draftedByPlayer.values()].sort(
+    (a, b) =>
+      (a.acquisitionDate || 0) - (b.acquisitionDate || 0) ||
+      a.playerId - b.playerId
+  );
+
+  if (draftedEntries.length > 0) {
+    return draftedEntries;
+  }
+
+  return [...fallbackByPlayer.values()]
+    .sort(
+      (a, b) =>
+        (a.acquisitionDate || 0) - (b.acquisitionDate || 0) ||
+        a.playerId - b.playerId
+    )
+    .slice(0, 16);
 }
 
 function findMostUnfairTrades(
@@ -2277,7 +2503,8 @@ function computeTeamData(
   teamLogoMap: Record<number, string>,
   seasonId: number,
   bestPickup: PlayerHighlight | null,
-  topPickups: PlayerHighlight[]
+  topPickups: PlayerHighlight[],
+  draftReview: DraftReviewSummary
 ): TeamWrappedData {
   // Get weekly scores for this team
   const weeklyScores: number[] = [];
@@ -2403,6 +2630,7 @@ function computeTeamData(
     mvpPlayer,
     bestPickup,
     topPickups,
+    draftReview,
     weeklyScores,
     totalTransactions: team.transactionCounter?.acquisitions || 0,
     rivals,
