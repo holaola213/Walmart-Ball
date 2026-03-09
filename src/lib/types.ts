@@ -9,6 +9,7 @@ export interface ESPNLeagueResponse {
   teams: ESPNTeam[];
   schedule: ESPNMatchup[];
   transactions?: ESPNTransaction[];
+  activityTopics?: ESPNActivityTopic[];
   historicalRostersByScoringPeriod?: Record<number, ESPNTeam[]>;
   members?: ESPNMember[];
   status: {
@@ -138,6 +139,26 @@ export interface ESPNTransaction {
   status: string;
 }
 
+export interface ESPNActivityTopic {
+  id: string;
+  type: string;
+  date: number;
+  totalMessageCount: number;
+  targetId?: string;
+  messages?: ESPNActivityMessage[];
+}
+
+export interface ESPNActivityMessage {
+  id: string;
+  date: number;
+  messageTypeId: number;
+  topicId: string;
+  targetId?: number;
+  from?: number;
+  to?: number;
+  for?: number;
+}
+
 export interface ESPNMember {
   id: string;
   displayName: string;
@@ -167,6 +188,8 @@ export interface WrappedData {
   bestWeekRunnersUp: WeeklyRecord[];
   worstWeek: WeeklyRecord;
   worstWeekRunnersUp: WeeklyRecord[];
+  worstFantasyGame: PlayerGameRecord;
+  worstFantasyGameRunnersUp: PlayerGameRecord[];
   biggestBlowout: MatchupHighlight;
   closestMatchup: MatchupHighlight;
   mostConsistent: ConsistencyRecord;
@@ -174,6 +197,8 @@ export interface WrappedData {
   boomOrBust: ConsistencyRecord;
   boomOrBustRunnersUp: ConsistencyRecord[];
   tradeSummary: TradeSummary;
+  unfairTrades: UnfairTradeRecord[];
+  fairTrades: UnfairTradeRecord[];
   waiverMvp: PlayerHighlight;
   waiverMvpRunnersUp: PlayerHighlight[];
   categoryLeaders: CategoryLeader[] | null;
@@ -228,6 +253,17 @@ export interface MatchupHighlight {
   margin: number;
 }
 
+export interface PlayerGameRecord {
+  playerName: string;
+  playerId: number;
+  teamName: string;
+  teamId: number;
+  points: number;
+  scoringPeriodId: number;
+  matchupPeriod?: number;
+  position: string;
+}
+
 export interface ConsistencyRecord {
   teamName: string;
   teamId: number;
@@ -240,6 +276,29 @@ export interface TradeSummary {
   totalTrades: number;
   mostActiveTrader: { teamName: string; teamId: number; tradeCount: number };
   tradeDetails: { teamName: string; teamId: number; count: number }[];
+}
+
+export interface TradeReturnPlayer {
+  playerName: string;
+  playerId: number;
+  position: string;
+  pointsAfterTrade: number;
+}
+
+export interface UnfairTradeSide {
+  teamId: number;
+  teamName: string;
+  playersReceived: TradeReturnPlayer[];
+  totalPoints: number;
+}
+
+export interface UnfairTradeRecord {
+  tradeId: string;
+  tradeDate?: string;
+  week?: number;
+  pointGap: number;
+  winner: UnfairTradeSide;
+  loser: UnfairTradeSide;
 }
 
 export interface CategoryLeader {

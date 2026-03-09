@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const ESPN_BASE =
   "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons";
+const COMMUNICATION_VIEW = "kona_league_communication";
+const ACTIVITY_FILTER_TYPE = "ACTIVITY_TRANSACTIONS";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -9,6 +11,12 @@ export async function GET(request: NextRequest) {
   const year = searchParams.get("year");
   const views = searchParams.get("views");
   const scoringPeriodId = searchParams.get("scoringPeriodId");
+  const resource = searchParams.get("resource");
+  const activityLimit = Number(searchParams.get("activityLimit") || "1000");
+  const activityMessageTypeIds = (searchParams.get("activityMessageTypeIds") || "")
+    .split(",")
+    .map((value) => Number(value.trim()))
+    .filter((value) => Number.isFinite(value));
 
   if (!leagueId || !year) {
     return NextResponse.json(
@@ -17,14 +25,21 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const url = `${ESPN_BASE}/${year}/segments/0/leagues/${leagueId}`;
+  const isCommunicationRequest = resource === "communication";
+  const url = isCommunicationRequest
+    ? `${ESPN_BASE}/${year}/segments/0/leagues/${leagueId}/communication/`
+    : `${ESPN_BASE}/${year}/segments/0/leagues/${leagueId}`;
   const params = new URLSearchParams();
 
-  if (views) {
-    views.split(",").forEach((v) => params.append("view", v.trim()));
-  }
-  if (scoringPeriodId) {
-    params.set("scoringPeriodId", scoringPeriodId);
+  if (isCommunicationRequest) {
+    params.set("view", COMMUNICATION_VIEW);
+  } else {
+    if (views) {
+      views.split(",").forEach((v) => params.append("view", v.trim()));
+    }
+    if (scoringPeriodId) {
+      params.set("scoringPeriodId", scoringPeriodId);
+    }
   }
 
   // Read auth cookies from server-side env vars (private league support)
@@ -44,6 +59,21 @@ export async function GET(request: NextRequest) {
     };
     if (cookieParts.length > 0) {
       headers["Cookie"] = cookieParts.join("; ");
+    }
+    if (isCommunicationRequest) {
+      headers["X-Fantasy-Source"] = "kona";
+      headers["X-Fantasy-Platform"] = "espn-fantasy-web";
+      headers["X-Fantasy-Filter"] = JSON.stringify({
+        topics: {
+          filterType: { value: [ACTIVITY_FILTER_TYPE] },
+          limit: activityLimit,
+          limitPerMessageSet: { value: activityLimit },
+          sortMessageDate: { sortPriority: 1, sortAsc: false },
+          ...(activityMessageTypeIds.length > 0
+            ? { filterIncludeMessageTypeIds: { value: activityMessageTypeIds } }
+            : {}),
+        },
+      });
     }
 
     const response = await fetch(`${url}?${params.toString()}`, {

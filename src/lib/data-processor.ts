@@ -6,9 +6,12 @@ import {
   StandingEntry,
   PlayerHighlight,
   WeeklyRecord,
+  PlayerGameRecord,
   MatchupHighlight,
   ConsistencyRecord,
   TradeSummary,
+  UnfairTradeRecord,
+  TradeReturnPlayer,
   Superlative,
   TeamWrappedData,
   RivalRecord,
@@ -17,6 +20,8 @@ import {
   TeamAward,
   ESPNPlayerStat,
   ESPNTransaction,
+  ESPNActivityTopic,
+  ESPNRosterEntry,
 } from "./types";
 import { POSITION_MAP } from "./constants";
 import { formatNumber, standardDeviation } from "./utils";
@@ -48,6 +53,23 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const topWorstWeeks = findTopWeeks(teamWeeklyScores, teamMap, "worst", 5);
   const worstWeek = topWorstWeeks[0] || { teamName: "", teamId: 0, week: 0, score: 0 };
   const worstWeekRunnersUp = topWorstWeeks.slice(1);
+  const topWorstFantasyGames = findWorstFantasyGames(
+    raw.historicalRostersByScoringPeriod || {},
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId,
+    10
+  );
+  const worstFantasyGame = topWorstFantasyGames[0] || {
+    playerName: "N/A",
+    playerId: 0,
+    teamName: "",
+    teamId: 0,
+    points: 0,
+    scoringPeriodId: 0,
+    position: "",
+  };
+  const worstFantasyGameRunnersUp = topWorstFantasyGames.slice(1);
   const biggestBlowout = findBiggestBlowout(completedMatchups, teamMap);
   const closestMatchup = findClosestMatchup(completedMatchups, teamMap);
   const {
@@ -55,6 +77,24 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     boomOrBust, boomOrBustRunnersUp,
   } = computeConsistency(teamWeeklyScores, teamMap);
   const tradeSummary = computeTradeSummary(raw, teamMap);
+  const unfairTrades = findMostUnfairTrades(
+    raw.activityTopics || [],
+    raw.transactions || [],
+    raw.teams,
+    raw.historicalRostersByScoringPeriod || {},
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+  const fairTrades = findMostFairTrades(
+    raw.activityTopics || [],
+    raw.transactions || [],
+    raw.teams,
+    raw.historicalRostersByScoringPeriod || {},
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
   const topPlayers = findTopPlayers(raw.teams, teamMap, seasonId);
   const mvpPlayer = topPlayers[0] || { playerName: "N/A", playerId: 0, teamName: "", teamId: 0, totalPoints: 0, acquisitionType: "", position: "" };
   const mvpPlayerRunnersUp = topPlayers.slice(1);
@@ -131,6 +171,8 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     bestWeekRunnersUp,
     worstWeek,
     worstWeekRunnersUp,
+    worstFantasyGame,
+    worstFantasyGameRunnersUp,
     biggestBlowout,
     closestMatchup,
     mostConsistent,
@@ -138,6 +180,8 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     boomOrBust,
     boomOrBustRunnersUp,
     tradeSummary,
+    unfairTrades,
+    fairTrades,
     waiverMvp,
     waiverMvpRunnersUp,
     categoryLeaders,
@@ -354,6 +398,318 @@ function computeTradeSummary(
   };
 }
 
+function findMostUnfairTrades(
+  activityTopics: ESPNActivityTopic[],
+  transactions: ESPNTransaction[],
+  teams: ESPNTeam[],
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number,
+  count: number = 5
+): UnfairTradeRecord[] {
+  const trades = collectScoredTradeRecords(
+    activityTopics,
+    transactions,
+    teams,
+    historicalRostersByScoringPeriod,
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+
+  return [...trades].sort(compareTradeRecordsDesc).slice(0, count);
+}
+
+function findMostFairTrades(
+  activityTopics: ESPNActivityTopic[],
+  transactions: ESPNTransaction[],
+  teams: ESPNTeam[],
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number,
+  count: number = 3
+): UnfairTradeRecord[] {
+  const trades = collectScoredTradeRecords(
+    activityTopics,
+    transactions,
+    teams,
+    historicalRostersByScoringPeriod,
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+
+  return [...trades].sort(compareTradeRecordsAsc).slice(0, count);
+}
+
+function compareTradeRecordsDesc(a: UnfairTradeRecord, b: UnfairTradeRecord): number {
+  return (
+    b.pointGap - a.pointGap ||
+    (b.week || 0) - (a.week || 0) ||
+    (a.tradeDate || "").localeCompare(b.tradeDate || "")
+  );
+}
+
+function compareTradeRecordsAsc(a: UnfairTradeRecord, b: UnfairTradeRecord): number {
+  return (
+    a.pointGap - b.pointGap ||
+    (b.week || 0) - (a.week || 0) ||
+    (a.tradeDate || "").localeCompare(b.tradeDate || "")
+  );
+}
+
+function collectScoredTradeRecords(
+  activityTopics: ESPNActivityTopic[],
+  transactions: ESPNTransaction[],
+  teams: ESPNTeam[],
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number
+): UnfairTradeRecord[] {
+  const playerInfoLookup = buildPlayerInfoLookup(
+    teams,
+    historicalRostersByScoringPeriod
+  );
+  const activityTrades = collectTradeRecordsFromActivityTopics(
+    activityTopics,
+    playerInfoLookup,
+    historicalRostersByScoringPeriod,
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+
+  if (activityTrades.length > 0) {
+    return activityTrades;
+  }
+
+  const transactionTrades = collectTradeRecordsFromTransactions(
+    transactions,
+    playerInfoLookup,
+    historicalRostersByScoringPeriod,
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+
+  if (transactionTrades.length > 0) {
+    return transactionTrades;
+  }
+
+  return collectTradeRecordsFromRosters(
+    teams,
+    historicalRostersByScoringPeriod,
+    teamMap,
+    scoringPeriodToMatchupPeriod,
+    seasonId
+  );
+}
+
+function collectTradeRecordsFromTransactions(
+  transactions: ESPNTransaction[],
+  playerInfoLookup: Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }>,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number
+): UnfairTradeRecord[] {
+  const tradeRecords: UnfairTradeRecord[] = [];
+  const seenTradeIds = new Set<string>();
+
+  for (const transaction of transactions) {
+    const isTrade =
+      transaction.type === "TRADE" ||
+      transaction.executionType === "TRADE" ||
+      transaction.items?.some((item) => item.type === "TRADE");
+
+    if (!isTrade || !transaction.items?.length) continue;
+    if (transaction.id && seenTradeIds.has(transaction.id)) continue;
+
+    const receivedByTeam = new Map<number, TradeReturnPlayer[]>();
+
+    for (const item of transaction.items) {
+      if (!item.playerId || !item.toTeamId || item.toTeamId === item.fromTeamId) {
+        continue;
+      }
+
+      const playerInfo = playerInfoLookup.get(item.playerId);
+      const totalPoints = getPlayerPointsFromScoringPeriodOnward(
+        historicalRostersByScoringPeriod,
+        item.playerId,
+        seasonId,
+        transaction.scoringPeriodId
+      );
+
+      const receivedPlayers = receivedByTeam.get(item.toTeamId) || [];
+      receivedPlayers.push({
+        playerName: playerInfo?.playerName || `Player ${item.playerId}`,
+        playerId: item.playerId,
+        position: playerInfo?.position || "UTIL",
+        pointsAfterTrade: totalPoints,
+      });
+      receivedByTeam.set(item.toTeamId, receivedPlayers);
+    }
+
+    if (receivedByTeam.size !== 2) continue;
+
+    const tradeRecord = buildTradeRecord(
+      transaction.id,
+      transaction.processDate
+        ? new Date(transaction.processDate).toISOString().slice(0, 10)
+        : undefined,
+      scoringPeriodToMatchupPeriod.get(transaction.scoringPeriodId),
+      receivedByTeam,
+      teamMap
+    );
+
+    if (!tradeRecord) continue;
+
+    tradeRecords.push(tradeRecord);
+
+    if (transaction.id) {
+      seenTradeIds.add(transaction.id);
+    }
+  }
+
+  return tradeRecords;
+}
+
+function collectTradeRecordsFromActivityTopics(
+  activityTopics: ESPNActivityTopic[],
+  playerInfoLookup: Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }>,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number
+): UnfairTradeRecord[] {
+  const tradeRecords: UnfairTradeRecord[] = [];
+
+  for (const topic of activityTopics) {
+    if (topic.type !== "ACTIVITY_TRANSACTIONS" || !topic.messages?.length) continue;
+
+    const tradeMessages = topic.messages.filter(
+      (message) =>
+        message.messageTypeId === 244 &&
+        typeof message.targetId === "number" &&
+        typeof message.from === "number" &&
+        typeof message.to === "number" &&
+        message.from !== message.to
+    );
+
+    if (tradeMessages.length < 2) continue;
+
+    const teamIds = new Set<number>();
+    for (const message of tradeMessages) {
+      teamIds.add(message.from!);
+      teamIds.add(message.to!);
+    }
+
+    if (teamIds.size !== 2) continue;
+
+    const receivedByTeam = new Map<number, TradeReturnPlayer[]>();
+    const tradeWeeks = new Set<number>();
+
+    for (const message of tradeMessages) {
+      const playerId = message.targetId!;
+      const toTeamId = message.to!;
+      const fromTeamId = message.from!;
+      const startingScoringPeriod = findPlayerArrivalScoringPeriod(
+        historicalRostersByScoringPeriod,
+        playerId,
+        fromTeamId,
+        toTeamId
+      );
+      const matchupPeriod = startingScoringPeriod
+        ? scoringPeriodToMatchupPeriod.get(startingScoringPeriod)
+        : undefined;
+      if (matchupPeriod) {
+        tradeWeeks.add(matchupPeriod);
+      }
+
+      const totalPoints = getPlayerPointsFromScoringPeriodOnward(
+        historicalRostersByScoringPeriod,
+        playerId,
+        seasonId,
+        startingScoringPeriod
+      );
+      const playerInfo = playerInfoLookup.get(playerId);
+      const receivedPlayers = receivedByTeam.get(toTeamId) || [];
+
+      receivedPlayers.push({
+        playerName: playerInfo?.playerName || `Player ${playerId}`,
+        playerId,
+        position: playerInfo?.position || "UTIL",
+        pointsAfterTrade: totalPoints,
+      });
+      receivedByTeam.set(toTeamId, receivedPlayers);
+    }
+
+    const tradeRecord = buildTradeRecord(
+      topic.id,
+      topic.date
+        ? new Date(topic.date).toISOString().slice(0, 10)
+        : undefined,
+      tradeWeeks.size > 0 ? Math.min(...tradeWeeks) : undefined,
+      receivedByTeam,
+      teamMap
+    );
+
+    if (!tradeRecord) continue;
+
+    tradeRecords.push(tradeRecord);
+  }
+
+  return tradeRecords;
+}
+
+function buildTradeRecord(
+  tradeId: string,
+  tradeDate: string | undefined,
+  week: number | undefined,
+  receivedByTeam: Map<number, TradeReturnPlayer[]>,
+  teamMap: Record<number, string>
+): UnfairTradeRecord | null {
+  if (receivedByTeam.size !== 2) return null;
+
+  const sides = [...receivedByTeam.entries()]
+    .map(([teamId, playersReceived]) => ({
+      teamId,
+      teamName: teamMap[teamId] || `Team ${teamId}`,
+      playersReceived: [...playersReceived].sort(
+        (a, b) =>
+          b.pointsAfterTrade - a.pointsAfterTrade ||
+          a.playerName.localeCompare(b.playerName)
+      ),
+      totalPoints: playersReceived.reduce(
+        (sum, player) => sum + player.pointsAfterTrade,
+        0
+      ),
+    }))
+    .sort(
+      (a, b) =>
+        b.totalPoints - a.totalPoints ||
+        a.teamName.localeCompare(b.teamName)
+    );
+
+  if (sides.length !== 2) return null;
+
+  const [winner, loser] = sides;
+  const pointGap = winner.totalPoints - loser.totalPoints;
+  if (pointGap <= 0) return null;
+
+  return {
+    tradeId,
+    tradeDate,
+    week,
+    pointGap,
+    winner,
+    loser,
+  };
+}
+
 function findTopPlayers(
   teams: ESPNTeam[],
   teamMap: Record<number, string>,
@@ -407,6 +763,63 @@ function findTopPlayers(
   return all.slice(0, count);
 }
 
+function findWorstFantasyGames(
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number,
+  count: number = 5
+): PlayerGameRecord[] {
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  const games: PlayerGameRecord[] = [];
+  const seen = new Set<string>();
+
+  for (const scoringPeriod of scoringPeriods) {
+    for (const team of historicalRostersByScoringPeriod[scoringPeriod] || []) {
+      for (const entry of team.roster?.entries || []) {
+        const player = entry.playerPoolEntry?.player;
+        if (!player) continue;
+
+        const points = getHistoricalSnapshotGamePoints(
+          player.stats,
+          seasonId,
+          scoringPeriod
+        );
+
+        if (points === null) continue;
+
+        const key = `${scoringPeriod}:${team.id}:${entry.playerId}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        games.push({
+          playerName: player.fullName,
+          playerId: entry.playerId,
+          teamName: teamMap[team.id],
+          teamId: team.id,
+          points,
+          scoringPeriodId: scoringPeriod,
+          matchupPeriod: scoringPeriodToMatchupPeriod.get(scoringPeriod),
+          position: POSITION_MAP[player.defaultPositionId] || "UTIL",
+        });
+      }
+    }
+  }
+
+  games.sort(
+    (a, b) =>
+      a.points - b.points ||
+      a.scoringPeriodId - b.scoringPeriodId ||
+      a.playerName.localeCompare(b.playerName)
+  );
+
+  return games.slice(0, count);
+}
+
 interface PickupMeta {
   pickupScoringPeriod?: number;
   pickupMatchupPeriod?: number;
@@ -416,6 +829,312 @@ interface PickupMeta {
 
 function getPickupKey(teamId: number, playerId: number): string {
   return `${teamId}:${playerId}`;
+}
+
+function buildPlayerInfoLookup(
+  teams: ESPNTeam[],
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>
+): Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }> {
+  const lookup = new Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }>();
+
+  const getStatsCoverage = (stats: ESPNPlayerStat[]) => {
+    let latestScoringPeriod = 0;
+
+    for (const stat of stats) {
+      if (
+        stat.statSourceId === 0 &&
+        typeof stat.scoringPeriodId === "number" &&
+        stat.scoringPeriodId > latestScoringPeriod
+      ) {
+        latestScoringPeriod = stat.scoringPeriodId;
+      }
+    }
+
+    return {
+      latestScoringPeriod,
+      statCount: stats.length,
+    };
+  };
+
+  const registerEntries = (entries: ESPNRosterEntry[] | undefined) => {
+    for (const entry of entries || []) {
+      const player = entry.playerPoolEntry?.player;
+      if (!player) continue;
+
+      const candidateStats = player.stats || [];
+      const existing = lookup.get(entry.playerId);
+      if (existing) {
+        const existingCoverage = getStatsCoverage(existing.stats);
+        const candidateCoverage = getStatsCoverage(candidateStats);
+        const candidateIsBetter =
+          candidateCoverage.latestScoringPeriod > existingCoverage.latestScoringPeriod ||
+          (
+            candidateCoverage.latestScoringPeriod === existingCoverage.latestScoringPeriod &&
+            candidateCoverage.statCount > existingCoverage.statCount
+          );
+
+        if (!candidateIsBetter) continue;
+      }
+
+      lookup.set(entry.playerId, {
+        playerName: player.fullName,
+        position: POSITION_MAP[player.defaultPositionId] || "UTIL",
+        stats: candidateStats,
+      });
+    }
+  };
+
+  for (const team of teams) {
+    registerEntries(team.roster?.entries);
+  }
+
+  for (const rosterTeams of Object.values(historicalRostersByScoringPeriod)) {
+    for (const team of rosterTeams) {
+      registerEntries(team.roster?.entries);
+    }
+  }
+
+  return lookup;
+}
+
+function collectTradeRecordsFromRosters(
+  teams: ESPNTeam[],
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  teamMap: Record<number, string>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  seasonId: number
+): UnfairTradeRecord[] {
+  const playerInfoLookup = buildPlayerInfoLookup(
+    teams,
+    historicalRostersByScoringPeriod
+  );
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+  const inferredTrades: UnfairTradeRecord[] = [];
+
+  for (let index = 1; index < scoringPeriods.length; index++) {
+    const previousScoringPeriod = scoringPeriods[index - 1];
+    const currentScoringPeriod = scoringPeriods[index];
+    const previousTeams = historicalRostersByScoringPeriod[previousScoringPeriod] || [];
+    const currentTeams = historicalRostersByScoringPeriod[currentScoringPeriod] || [];
+    const previousRosterMap = buildPlayerTeamMap(previousTeams);
+    const currentRosterMap = buildPlayerTeamMap(currentTeams);
+    const teamMovePartners = new Map<number, Set<number>>();
+    const pairMoves = new Map<
+      string,
+      {
+        teamA: number;
+        teamB: number;
+        aToB: number[];
+        bToA: number[];
+      }
+    >();
+
+    for (const [playerId, fromTeamId] of previousRosterMap.entries()) {
+      const toTeamId = currentRosterMap.get(playerId);
+      if (!toTeamId || toTeamId === fromTeamId) continue;
+
+      if (!teamMovePartners.has(fromTeamId)) {
+        teamMovePartners.set(fromTeamId, new Set<number>());
+      }
+      if (!teamMovePartners.has(toTeamId)) {
+        teamMovePartners.set(toTeamId, new Set<number>());
+      }
+      teamMovePartners.get(fromTeamId)!.add(toTeamId);
+      teamMovePartners.get(toTeamId)!.add(fromTeamId);
+
+      const teamA = Math.min(fromTeamId, toTeamId);
+      const teamB = Math.max(fromTeamId, toTeamId);
+      const pairKey = `${currentScoringPeriod}:${teamA}:${teamB}`;
+      const existing = pairMoves.get(pairKey) || {
+        teamA,
+        teamB,
+        aToB: [],
+        bToA: [],
+      };
+
+      if (fromTeamId === teamA && toTeamId === teamB) {
+        existing.aToB.push(playerId);
+      } else if (fromTeamId === teamB && toTeamId === teamA) {
+        existing.bToA.push(playerId);
+      }
+
+      pairMoves.set(pairKey, existing);
+    }
+
+    for (const [pairKey, move] of pairMoves.entries()) {
+      if (move.aToB.length === 0 || move.bToA.length === 0) continue;
+
+      const teamAPartners = teamMovePartners.get(move.teamA) || new Set<number>();
+      const teamBPartners = teamMovePartners.get(move.teamB) || new Set<number>();
+      const ambiguousPair =
+        [...teamAPartners].some((teamId) => teamId !== move.teamB) ||
+        [...teamBPartners].some((teamId) => teamId !== move.teamA);
+
+      if (ambiguousPair) continue;
+
+      const teamAReceived = move.bToA.map((playerId) =>
+        buildTradeReturnPlayer(
+          playerId,
+          currentScoringPeriod,
+          playerInfoLookup,
+          historicalRostersByScoringPeriod,
+          seasonId
+        )
+      );
+      const teamBReceived = move.aToB.map((playerId) =>
+        buildTradeReturnPlayer(
+          playerId,
+          currentScoringPeriod,
+          playerInfoLookup,
+          historicalRostersByScoringPeriod,
+          seasonId
+        )
+      );
+
+      const sides = [
+        {
+          teamId: move.teamA,
+          teamName: teamMap[move.teamA] || `Team ${move.teamA}`,
+          playersReceived: teamAReceived.sort(
+            (a, b) =>
+              b.pointsAfterTrade - a.pointsAfterTrade ||
+              a.playerName.localeCompare(b.playerName)
+          ),
+          totalPoints: teamAReceived.reduce(
+            (sum, player) => sum + player.pointsAfterTrade,
+            0
+          ),
+        },
+        {
+          teamId: move.teamB,
+          teamName: teamMap[move.teamB] || `Team ${move.teamB}`,
+          playersReceived: teamBReceived.sort(
+            (a, b) =>
+              b.pointsAfterTrade - a.pointsAfterTrade ||
+              a.playerName.localeCompare(b.playerName)
+          ),
+          totalPoints: teamBReceived.reduce(
+            (sum, player) => sum + player.pointsAfterTrade,
+            0
+          ),
+        },
+      ].sort(
+        (a, b) =>
+          b.totalPoints - a.totalPoints ||
+          a.teamName.localeCompare(b.teamName)
+      );
+
+      const [winner, loser] = sides;
+      const pointGap = winner.totalPoints - loser.totalPoints;
+      if (pointGap <= 0) continue;
+
+      inferredTrades.push({
+        tradeId: `inferred-${pairKey}`,
+        week: scoringPeriodToMatchupPeriod.get(currentScoringPeriod),
+        pointGap,
+        winner: {
+          teamId: winner.teamId,
+          teamName: winner.teamName,
+          playersReceived: winner.playersReceived,
+          totalPoints: winner.totalPoints,
+        },
+        loser: {
+          teamId: loser.teamId,
+          teamName: loser.teamName,
+          playersReceived: loser.playersReceived,
+          totalPoints: loser.totalPoints,
+        },
+      });
+    }
+  }
+
+  return inferredTrades;
+}
+
+function buildPlayerTeamMap(teams: ESPNTeam[]): Map<number, number> {
+  const map = new Map<number, number>();
+
+  for (const team of teams) {
+    for (const entry of team.roster?.entries || []) {
+      map.set(entry.playerId, team.id);
+    }
+  }
+
+  return map;
+}
+
+function findPlayerArrivalScoringPeriod(
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  playerId: number,
+  fromTeamId: number,
+  toTeamId: number
+): number | undefined {
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  let previousTeamId: number | undefined;
+  let fallbackScoringPeriod: number | undefined;
+
+  for (const scoringPeriod of scoringPeriods) {
+    const currentTeamId = findPlayerTeamIdForScoringPeriod(
+      historicalRostersByScoringPeriod[scoringPeriod] || [],
+      playerId
+    );
+
+    if (currentTeamId === toTeamId && previousTeamId !== toTeamId) {
+      fallbackScoringPeriod ??= scoringPeriod;
+      if (previousTeamId === fromTeamId) {
+        return scoringPeriod;
+      }
+    }
+
+    if (typeof currentTeamId === "number") {
+      previousTeamId = currentTeamId;
+    }
+  }
+
+  return fallbackScoringPeriod;
+}
+
+function findPlayerTeamIdForScoringPeriod(
+  teams: ESPNTeam[],
+  playerId: number
+): number | undefined {
+  for (const team of teams) {
+    if (team.roster?.entries?.some((entry) => entry.playerId === playerId)) {
+      return team.id;
+    }
+  }
+
+  return undefined;
+}
+
+function buildTradeReturnPlayer(
+  playerId: number,
+  startingScoringPeriod: number,
+  playerInfoLookup: Map<number, { playerName: string; position: string; stats: ESPNPlayerStat[] }>,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  seasonId: number
+): TradeReturnPlayer {
+  const playerInfo = playerInfoLookup.get(playerId);
+  const totalPoints = getPlayerPointsFromScoringPeriodOnward(
+    historicalRostersByScoringPeriod,
+    playerId,
+    seasonId,
+    startingScoringPeriod
+  );
+
+  return {
+    playerName: playerInfo?.playerName || `Player ${playerId}`,
+    playerId,
+    position: playerInfo?.position || "UTIL",
+    pointsAfterTrade: totalPoints,
+  };
 }
 
 function buildScoringPeriodToMatchupPeriodMap(
@@ -533,6 +1252,40 @@ function getSeasonTotalPoints(
   return seasonStat?.appliedTotal || 0;
 }
 
+function getPlayerPointsFromScoringPeriodOnward(
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  playerId: number,
+  seasonId: number,
+  startingScoringPeriod?: number
+): number {
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter(
+      (value) =>
+        Number.isFinite(value) &&
+        (!startingScoringPeriod || value >= startingScoringPeriod)
+    )
+    .sort((a, b) => a - b);
+
+  let totalPoints = 0;
+
+  for (const scoringPeriod of scoringPeriods) {
+    let stats: ESPNPlayerStat[] | undefined;
+
+    for (const team of historicalRostersByScoringPeriod[scoringPeriod] || []) {
+      const rosterEntry = team.roster?.entries?.find((entry) => entry.playerId === playerId);
+      if (!rosterEntry) continue;
+      stats = rosterEntry.playerPoolEntry?.player?.stats;
+      break;
+    }
+
+    if (!stats) continue;
+    totalPoints += getHistoricalSnapshotPoints(stats, seasonId, scoringPeriod);
+  }
+
+  return totalPoints;
+}
+
 function getHistoricalSnapshotPoints(
   stats: ESPNPlayerStat[] | undefined,
   seasonId: number,
@@ -556,6 +1309,31 @@ function getHistoricalSnapshotPoints(
   );
 
   return fallback?.appliedTotal || 0;
+}
+
+function getHistoricalSnapshotGamePoints(
+  stats: ESPNPlayerStat[] | undefined,
+  seasonId: number,
+  scoringPeriodId: number
+): number | null {
+  const exact = (stats || []).find(
+    (stat) =>
+      stat.seasonId === seasonId &&
+      stat.statSourceId === 0 &&
+      stat.statSplitTypeId === 5 &&
+      stat.scoringPeriodId === scoringPeriodId
+  );
+
+  if (exact) return exact.appliedTotal || 0;
+
+  const fallback = (stats || []).find(
+    (stat) =>
+      stat.seasonId === seasonId &&
+      stat.statSourceId === 0 &&
+      stat.scoringPeriodId === scoringPeriodId
+  );
+
+  return fallback ? fallback.appliedTotal || 0 : null;
 }
 
 function computeCategoryLeaders(

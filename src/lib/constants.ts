@@ -52,6 +52,7 @@ export const SLIDE_COLORS: Record<string, string> = {
   mvp: "#FF8F5E",
   bestWeek: "#42F5B5",
   worstWeek: "#FF6D8A",
+  worstGame: "#FF9A7A",
   blowout: "#4FA7FF",
   closest: "#49F2D2",
   consistent: "#7F93FF",

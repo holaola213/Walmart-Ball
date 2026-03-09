@@ -13,11 +13,16 @@ import { ChampionSlide } from "./ChampionSlide";
 import { MvpPlayerSlide } from "./MvpPlayerSlide";
 import { BestWeekSlide } from "./BestWeekSlide";
 import { WorstWeekSlide } from "./WorstWeekSlide";
+import { WorstFantasyGameSlide } from "./WorstFantasyGameSlide";
 import { BiggestBlowoutSlide } from "./BiggestBlowoutSlide";
 import { ClosestMatchupSlide } from "./ClosestMatchupSlide";
 import { MostConsistentSlide } from "./MostConsistentSlide";
 import { BoomOrBustSlide } from "./BoomOrBustSlide";
 import { TradeSummarySlide } from "./TradeSummarySlide";
+import { UnfairTradesIntroSlide } from "./UnfairTradesIntroSlide";
+import { UnfairTradeSlide } from "./UnfairTradeSlide";
+import { FairTradesIntroSlide } from "./FairTradesIntroSlide";
+import { FairTradeSlide } from "./FairTradeSlide";
 import { WaiverMvpSlide } from "./WaiverMvpSlide";
 import { CategoryLeadersSlide } from "./CategoryLeadersSlide";
 import { SuperlativeSlide } from "./SuperlativeSlide";
@@ -34,6 +39,8 @@ export interface SlideProps {
 
 type SlideEntry =
   | { type: "component"; component: React.ComponentType<SlideProps>; id: string }
+  | { type: "unfairTrade"; index: number; rank: number; id: string }
+  | { type: "fairTrade"; index: number; rank: number; id: string }
   | { type: "superlative"; index: number; id: string };
 
 const STATIC_SLIDES_BEFORE: SlideEntry[] = [
@@ -43,6 +50,7 @@ const STATIC_SLIDES_BEFORE: SlideEntry[] = [
   { type: "component", component: MvpPlayerSlide, id: "mvp" },
   { type: "component", component: BestWeekSlide, id: "bestWeek" },
   { type: "component", component: WorstWeekSlide, id: "worstWeek" },
+  { type: "component", component: WorstFantasyGameSlide, id: "worstGame" },
   { type: "component", component: BiggestBlowoutSlide, id: "blowout" },
   { type: "component", component: ClosestMatchupSlide, id: "closest" },
   { type: "component", component: MostConsistentSlide, id: "consistent" },
@@ -82,6 +90,44 @@ export function SlideContainer({ data, initialSlideId, onSelectTeam, onHome }: P
     // Add category leaders slide if applicable
     if (data.categoryLeaders !== null) {
       result.push(CATEGORIES_SLIDE);
+    }
+
+    if (data.unfairTrades.length > 0) {
+      result.push({
+        type: "component",
+        component: UnfairTradesIntroSlide,
+        id: "unfair-trades-intro",
+      });
+
+      data.unfairTrades
+        .map((_, i) => data.unfairTrades.length - 1 - i)
+        .forEach((tradeIndex) => {
+          result.push({
+            type: "unfairTrade",
+            index: tradeIndex,
+            rank: tradeIndex + 1,
+            id: `unfair-trade-${tradeIndex}`,
+          });
+        });
+    }
+
+    if (data.fairTrades.length > 0) {
+      result.push({
+        type: "component",
+        component: FairTradesIntroSlide,
+        id: "fair-trades-intro",
+      });
+
+      data.fairTrades
+        .map((_, i) => data.fairTrades.length - 1 - i)
+        .forEach((tradeIndex) => {
+          result.push({
+            type: "fairTrade",
+            index: tradeIndex,
+            rank: tradeIndex + 1,
+            id: `fair-trade-${tradeIndex}`,
+          });
+        });
     }
 
     // Add individual superlative slides
@@ -129,6 +175,30 @@ export function SlideContainer({ data, initialSlideId, onSelectTeam, onHome }: P
   const currentSlide = slides[currentIndex];
 
   const renderSlide = () => {
+    if (currentSlide.type === "unfairTrade") {
+      return (
+        <UnfairTradeSlide
+          key={currentSlide.id}
+          data={data}
+          trade={data.unfairTrades[currentSlide.index]}
+          rank={currentSlide.rank}
+          direction={direction}
+        />
+      );
+    }
+
+    if (currentSlide.type === "fairTrade") {
+      return (
+        <FairTradeSlide
+          key={currentSlide.id}
+          data={data}
+          trade={data.fairTrades[currentSlide.index]}
+          rank={currentSlide.rank}
+          direction={direction}
+        />
+      );
+    }
+
     if (currentSlide.type === "superlative") {
       return (
         <SuperlativeSlide

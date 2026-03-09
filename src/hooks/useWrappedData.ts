@@ -121,19 +121,28 @@ export function useWrappedData() {
           : {};
       setProgress(80);
 
-      // Fetch 3: Transactions
-      const res3 = await fetch(`${base}&views=mTransactions2`);
+      // Fetch 3: Transactions + trade activity feed
+      const [res3, res4] = await Promise.all([
+        fetch(`${base}&views=mTransactions2`),
+        fetch(
+          `${base}&resource=communication&activityMessageTypeIds=244&activityLimit=1000`
+        ),
+      ]);
       // Transactions may not be available for all leagues, so we don't throw
       const transactionData = res3.ok
         ? await res3.json()
         : { transactions: [] };
-      setProgress(85);
+      const activityData = res4.ok
+        ? await res4.json()
+        : { topics: [] };
+      setProgress(88);
 
       // Merge responses
       const merged = {
         ...leagueBase,
         schedule: matchupData.schedule || leagueBase.schedule || [],
         transactions: transactionData.transactions || [],
+        activityTopics: activityData.topics || [],
         historicalRostersByScoringPeriod,
       };
 
