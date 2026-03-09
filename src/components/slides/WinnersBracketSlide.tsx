@@ -178,7 +178,7 @@ export function WinnersBracketSlide({ data, direction }: SlideProps) {
         className="type-kicker mb-2"
         style={{ color: `${accentColor}80` }}
       >
-        Projected
+        Playoffs
       </motion.p>
 
       <motion.h2

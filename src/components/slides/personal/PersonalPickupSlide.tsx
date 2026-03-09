@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { SlideLayout } from "../SlideLayout";
 import { SLIDE_COLORS, getPlayerHeadshotUrl } from "@/lib/constants";
 import { StatNumber } from "@/components/ui/StatNumber";
+import { RunnersUpList } from "@/components/ui/RunnersUpList";
 import { TeamWrappedData } from "@/lib/types";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 export function PersonalPickupSlide({ team, direction }: Props) {
   const pickup = team.bestPickup;
+  const otherPickups = team.topPickups.slice(1);
 
   if (!pickup) {
     return (
@@ -83,8 +85,27 @@ export function PersonalPickupSlide({ team, direction }: Props) {
         <div className="type-number-lg font-bold text-[#9ACC7B]" style={{ textShadow: "0 0 30px rgba(154, 204, 123, 0.3)" }}>
           <StatNumber value={pickup.totalPoints} decimals={1} />
         </div>
-        <p className="type-meta text-white/25 mt-2">Total fantasy points</p>
+        <p className="type-meta text-white/25 mt-2">Fantasy points after pickup</p>
+        {pickup.pickupPeriod ? (
+          <p className="type-meta text-white/18 mt-2">
+            Added in Week {pickup.pickupPeriod}
+            {pickup.rosteredWeeks ? ` · ${pickup.rosteredWeeks} rostered weeks` : ""}
+          </p>
+        ) : null}
       </motion.div>
+
+      {otherPickups.length > 0 && (
+        <RunnersUpList
+          accentColor={SLIDE_COLORS.personalPickup}
+          delay={0.95}
+          items={otherPickups.map((p) => ({
+            label: p.playerName,
+            sublabel: `${p.position}${p.pickupPeriod ? ` · Wk ${p.pickupPeriod}` : ""}`,
+            value: `${p.totalPoints.toFixed(1)} pts`,
+            avatarUrl: p.playerId > 0 ? getPlayerHeadshotUrl(p.playerId) : undefined,
+          }))}
+        />
+      )}
     </SlideLayout>
   );
 }

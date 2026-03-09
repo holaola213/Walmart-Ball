@@ -63,6 +63,7 @@ export function WaiverMvpSlide({ data, direction }: SlideProps) {
       {data.waiverMvpRunnersUp.length > 0 && (
         <RunnersUpList
           accentColor={SLIDE_COLORS.waiverMvp}
+          columns={2}
           delay={1.0}
           items={data.waiverMvpRunnersUp.map((p) => ({
             label: p.playerName,

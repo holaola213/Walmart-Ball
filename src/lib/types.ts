@@ -9,6 +9,7 @@ export interface ESPNLeagueResponse {
   teams: ESPNTeam[];
   schedule: ESPNMatchup[];
   transactions?: ESPNTransaction[];
+  historicalRostersByScoringPeriod?: Record<number, ESPNTeam[]>;
   members?: ESPNMember[];
   status: {
     currentMatchupPeriod: number;
@@ -79,6 +80,7 @@ export interface ESPNRosterEntry {
 export interface ESPNPlayerStat {
   id: string;
   seasonId: number;
+  scoringPeriodId?: number;
   stats: Record<string, number>;
   appliedTotal: number;
   appliedAverage: number;
@@ -130,6 +132,7 @@ export interface ESPNTransaction {
   }[];
   teamId: number;
   bidAmount?: number;
+  proposedDate?: number;
   processDate: number;
   scoringPeriodId: number;
   status: string;
@@ -202,6 +205,9 @@ export interface PlayerHighlight {
   totalPoints: number;
   acquisitionType: string;
   position: string;
+  pickupPeriod?: number;
+  pickupDate?: string;
+  rosteredWeeks?: number;
 }
 
 export interface WeeklyRecord {
@@ -283,6 +289,7 @@ export interface TeamWrappedData {
   worstWeek: WeeklyRecord;
   mvpPlayer: PlayerHighlight | null;
   bestPickup: PlayerHighlight | null;
+  topPickups: PlayerHighlight[];
   weeklyScores: number[];
   totalTransactions: number;
   rivals: RivalRecord[];

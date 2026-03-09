@@ -2,10 +2,68 @@
 
 import { useState } from "react";
 import { processWrappedData } from "@/lib/data-processor";
-import { WrappedData } from "@/lib/types";
+import { ESPNMatchup, ESPNTeam, WrappedData } from "@/lib/types";
 import { LEAGUE_ID, SEASON_YEAR } from "@/lib/constants";
 
 export type FetchStatus = "idle" | "loading" | "processing" | "success" | "error";
+
+function getHistoricalScoringPeriods(matchups: ESPNMatchup[], latestScoringPeriod: number): number[] {
+  const periods = new Set<number>();
+
+  for (const matchup of matchups) {
+    if (!matchup.away || matchup.playoffTierType) continue;
+
+    for (const side of [matchup.home, matchup.away]) {
+      for (const value of Object.keys(side?.pointsByScoringPeriod || {})) {
+        const scoringPeriod = Number(value);
+        if (
+          Number.isFinite(scoringPeriod) &&
+          scoringPeriod > 0 &&
+          scoringPeriod <= latestScoringPeriod
+        ) {
+          periods.add(scoringPeriod);
+        }
+      }
+    }
+  }
+
+  return [...periods].sort((a, b) => a - b);
+}
+
+async function fetchHistoricalRosters(
+  base: string,
+  scoringPeriods: number[],
+  onProgress: (completed: number, total: number) => void
+): Promise<Record<number, ESPNTeam[]>> {
+  const historicalRostersByScoringPeriod: Record<number, ESPNTeam[]> = {};
+  const chunkSize = 12;
+
+  for (let start = 0; start < scoringPeriods.length; start += chunkSize) {
+    const chunk = scoringPeriods.slice(start, start + chunkSize);
+    const results = await Promise.all(
+      chunk.map(async (scoringPeriodId) => {
+        const response = await fetch(
+          `${base}&views=mRoster&scoringPeriodId=${scoringPeriodId}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch roster snapshot for scoring period ${scoringPeriodId}`);
+        }
+
+        const data = await response.json();
+        return { scoringPeriodId, teams: (data.teams || []) as ESPNTeam[] };
+      })
+    );
+
+    for (const result of results) {
+      historicalRostersByScoringPeriod[result.scoringPeriodId] = result.teams;
+    }
+
+    onProgress(Math.min(start + chunk.length, scoringPeriods.length), scoringPeriods.length);
+  }
+
+  return historicalRostersByScoringPeriod;
+}
 
 export function useWrappedData() {
   const [data, setData] = useState<WrappedData | null>(null);
@@ -41,7 +99,27 @@ export function useWrappedData() {
       const res2 = await fetch(`${base}&views=mMatchup`);
       if (!res2.ok) throw new Error("Failed to fetch matchup data");
       const matchupData = await res2.json();
-      setProgress(70);
+      setProgress(55);
+
+      const historicalScoringPeriods = getHistoricalScoringPeriods(
+        matchupData.schedule || [],
+        matchupData.status?.latestScoringPeriod ||
+          leagueBase.status?.latestScoringPeriod ||
+          0
+      );
+
+      const historicalRostersByScoringPeriod =
+        historicalScoringPeriods.length > 0
+          ? await fetchHistoricalRosters(
+              base,
+              historicalScoringPeriods,
+              (completed, total) => {
+                const ratio = total === 0 ? 1 : completed / total;
+                setProgress(55 + ratio * 25);
+              }
+            )
+          : {};
+      setProgress(80);
 
       // Fetch 3: Transactions
       const res3 = await fetch(`${base}&views=mTransactions2`);
@@ -56,11 +134,12 @@ export function useWrappedData() {
         ...leagueBase,
         schedule: matchupData.schedule || leagueBase.schedule || [],
         transactions: transactionData.transactions || [],
+        historicalRostersByScoringPeriod,
       };
 
       // Process
       setStatus("processing");
-      setProgress(90);
+      setProgress(92);
       const wrapped = processWrappedData(merged);
       setProgress(100);
 

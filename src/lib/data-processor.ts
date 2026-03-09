@@ -15,6 +15,8 @@ import {
   RivalryHighlight,
   CategoryLeader,
   TeamAward,
+  ESPNPlayerStat,
+  ESPNTransaction,
 } from "./types";
 import { POSITION_MAP } from "./constants";
 import { formatNumber, standardDeviation } from "./utils";
@@ -37,6 +39,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const completedMatchups = (raw.schedule || []).filter(
     (m) => m.winner !== "UNDECIDED" && m.away && !m.playoffTierType
   );
+  const scoringPeriodToMatchupPeriod = buildScoringPeriodToMatchupPeriodMap(raw.schedule || []);
 
   const teamWeeklyScores = computeTeamWeeklyScores(completedMatchups);
   const topBestWeeks = findTopWeeks(teamWeeklyScores, teamMap, "best", 5);
@@ -55,9 +58,33 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
   const topPlayers = findTopPlayers(raw.teams, teamMap, seasonId);
   const mvpPlayer = topPlayers[0] || { playerName: "N/A", playerId: 0, teamName: "", teamId: 0, totalPoints: 0, acquisitionType: "", position: "" };
   const mvpPlayerRunnersUp = topPlayers.slice(1);
-  const topWaiverPlayers = findTopPlayers(raw.teams, teamMap, seasonId, "ADD");
+  const pickupLookup = buildLatestPickupLookup(raw.transactions || [], scoringPeriodToMatchupPeriod);
+  const allWaiverPickups = findTopPlayers(
+    raw.teams,
+    teamMap,
+    seasonId,
+    "ADD",
+    999,
+    raw.historicalRostersByScoringPeriod || {},
+    scoringPeriodToMatchupPeriod,
+    pickupLookup
+  );
+  const topWaiverPlayers = allWaiverPickups.slice(0, 10);
   const waiverMvp = topWaiverPlayers[0] || { playerName: "N/A", playerId: 0, teamName: "", teamId: 0, totalPoints: 0, acquisitionType: "ADD", position: "" };
   const waiverMvpRunnersUp = topWaiverPlayers.slice(1);
+  const bestPickupByTeam = new Map<number, PlayerHighlight>();
+  const topPickupsByTeam = new Map<number, PlayerHighlight[]>();
+  for (const pickup of allWaiverPickups) {
+    if (!bestPickupByTeam.has(pickup.teamId)) {
+      bestPickupByTeam.set(pickup.teamId, pickup);
+    }
+
+    const existing = topPickupsByTeam.get(pickup.teamId) || [];
+    if (existing.length < 10) {
+      existing.push(pickup);
+      topPickupsByTeam.set(pickup.teamId, existing);
+    }
+  }
 
   const scoringType = raw.settings?.scoringSettings?.scoringType || "H2H_POINTS";
   const categoryLeaders = scoringType.includes("CATEGORY")
@@ -68,7 +95,8 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     raw.teams,
     teamWeeklyScores,
     completedMatchups,
-    teamMap
+    teamMap,
+    seasonId
   );
 
   const rivalry = computeRivalry(completedMatchups, teamMap);
@@ -80,7 +108,9 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
       completedMatchups,
       teamMap,
       teamAbbrevMap,
-      seasonId
+      seasonId,
+      bestPickupByTeam.get(team.id) || null,
+      topPickupsByTeam.get(team.id) || []
     );
   }
 
@@ -328,7 +358,10 @@ function findTopPlayers(
   teamMap: Record<number, string>,
   seasonId: number,
   filter?: "ADD",
-  count: number = 5
+  count: number = 5,
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]> = {},
+  scoringPeriodToMatchupPeriod: Map<number, number> = new Map(),
+  pickupLookup: Map<string, PickupMeta> = new Map()
 ): PlayerHighlight[] {
   const all: PlayerHighlight[] = [];
   for (const team of teams) {
@@ -338,10 +371,19 @@ function findTopPlayers(
       const player = entry.playerPoolEntry?.player;
       if (!player) continue;
 
-      const seasonStat = player.stats?.find(
-        (s) => s.statSourceId === 0 && s.statSplitTypeId === 0 && s.seasonId === seasonId
-      );
-      const total = seasonStat?.appliedTotal || 0;
+      const pickupMeta = pickupLookup.get(getPickupKey(team.id, entry.playerId));
+      const pickupStats =
+        filter === "ADD"
+          ? getPickupPointsForTeam(
+              historicalRostersByScoringPeriod,
+              scoringPeriodToMatchupPeriod,
+              team.id,
+              entry.playerId,
+              seasonId,
+              pickupMeta?.pickupScoringPeriod
+            )
+          : null;
+      const total = pickupStats?.totalPoints ?? getSeasonTotalPoints(player.stats, seasonId);
       if (total > 0) {
         all.push({
           playerName: player.fullName,
@@ -351,12 +393,168 @@ function findTopPlayers(
           totalPoints: total,
           acquisitionType: entry.acquisitionType,
           position: POSITION_MAP[player.defaultPositionId] || "UTIL",
+          pickupPeriod: pickupStats?.pickupPeriod ?? pickupMeta?.pickupMatchupPeriod,
+          pickupDate:
+            pickupMeta?.pickupDate ||
+            (entry.acquisitionDate ? new Date(entry.acquisitionDate).toISOString().slice(0, 10) : undefined),
+          rosteredWeeks: pickupStats?.rosteredWeeks,
         });
       }
     }
   }
   all.sort((a, b) => b.totalPoints - a.totalPoints);
   return all.slice(0, count);
+}
+
+interface PickupMeta {
+  pickupScoringPeriod?: number;
+  pickupMatchupPeriod?: number;
+  pickupDate?: string;
+  processDate?: number;
+}
+
+function getPickupKey(teamId: number, playerId: number): string {
+  return `${teamId}:${playerId}`;
+}
+
+function buildScoringPeriodToMatchupPeriodMap(
+  matchups: ESPNMatchup[]
+): Map<number, number> {
+  const map = new Map<number, number>();
+
+  for (const matchup of matchups) {
+    for (const side of [matchup.home, matchup.away]) {
+      for (const key of Object.keys(side?.pointsByScoringPeriod || {})) {
+        const scoringPeriod = Number(key);
+        if (Number.isFinite(scoringPeriod) && scoringPeriod > 0) {
+          map.set(scoringPeriod, matchup.matchupPeriodId);
+        }
+      }
+    }
+  }
+
+  return map;
+}
+
+function buildLatestPickupLookup(
+  transactions: ESPNTransaction[],
+  scoringPeriodToMatchupPeriod: Map<number, number>
+): Map<string, PickupMeta> {
+  const lookup = new Map<string, PickupMeta>();
+
+  for (const transaction of transactions) {
+    if (!transaction.items?.length) continue;
+
+    for (const item of transaction.items) {
+      const isAdd =
+        transaction.type === "ADD" ||
+        transaction.executionType === "ADD" ||
+        item.type === "ADD";
+      const teamId = item.toTeamId || transaction.teamId;
+
+      if (!isAdd || !teamId || !item.playerId) continue;
+
+      const key = getPickupKey(teamId, item.playerId);
+      const processDate = transaction.processDate || 0;
+      const previous = lookup.get(key);
+
+      if (!previous || processDate >= (previous.processDate || 0)) {
+        lookup.set(key, {
+          pickupScoringPeriod: transaction.scoringPeriodId,
+          pickupMatchupPeriod: scoringPeriodToMatchupPeriod.get(transaction.scoringPeriodId),
+          pickupDate: processDate ? new Date(processDate).toISOString().slice(0, 10) : undefined,
+          processDate,
+        });
+      }
+    }
+  }
+
+  return lookup;
+}
+
+function getPickupPointsForTeam(
+  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
+  scoringPeriodToMatchupPeriod: Map<number, number>,
+  teamId: number,
+  playerId: number,
+  seasonId: number,
+  pickupScoringPeriod?: number
+): { totalPoints: number; pickupPeriod?: number; rosteredWeeks: number } | null {
+  const scoringPeriods = Object.keys(historicalRostersByScoringPeriod)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  if (scoringPeriods.length === 0) return null;
+
+  let totalPoints = 0;
+  const rosteredMatchupPeriods = new Set<number>();
+  let firstRosteredMatchupPeriod: number | undefined;
+
+  for (const scoringPeriod of scoringPeriods) {
+    if (pickupScoringPeriod && scoringPeriod < pickupScoringPeriod) continue;
+
+    const team = historicalRostersByScoringPeriod[scoringPeriod]?.find(
+      (rosterTeam) => rosterTeam.id === teamId
+    );
+    const rosterEntry = team?.roster?.entries?.find((entry) => entry.playerId === playerId);
+
+    if (!rosterEntry) continue;
+
+    totalPoints += getHistoricalSnapshotPoints(
+      rosterEntry.playerPoolEntry?.player?.stats,
+      seasonId,
+      scoringPeriod
+    );
+
+    const matchupPeriod = scoringPeriodToMatchupPeriod.get(scoringPeriod);
+    if (matchupPeriod) {
+      rosteredMatchupPeriods.add(matchupPeriod);
+      firstRosteredMatchupPeriod ??= matchupPeriod;
+    }
+  }
+
+  return {
+    totalPoints,
+    pickupPeriod: firstRosteredMatchupPeriod,
+    rosteredWeeks: rosteredMatchupPeriods.size,
+  };
+}
+
+function getSeasonTotalPoints(
+  stats: { seasonId: number; statSourceId: number; statSplitTypeId: number; appliedTotal: number }[] | undefined,
+  seasonId: number
+): number {
+  const seasonStat = stats?.find(
+    (s) => s.statSourceId === 0 && s.statSplitTypeId === 0 && s.seasonId === seasonId
+  );
+
+  return seasonStat?.appliedTotal || 0;
+}
+
+function getHistoricalSnapshotPoints(
+  stats: ESPNPlayerStat[] | undefined,
+  seasonId: number,
+  scoringPeriodId: number
+): number {
+  const exact = (stats || []).find(
+    (stat) =>
+      stat.seasonId === seasonId &&
+      stat.statSourceId === 0 &&
+      stat.statSplitTypeId === 5 &&
+      stat.scoringPeriodId === scoringPeriodId
+  );
+
+  if (exact) return exact.appliedTotal || 0;
+
+  const fallback = (stats || []).find(
+    (stat) =>
+      stat.seasonId === seasonId &&
+      stat.statSourceId === 0 &&
+      stat.scoringPeriodId === scoringPeriodId
+  );
+
+  return fallback?.appliedTotal || 0;
 }
 
 function computeCategoryLeaders(
@@ -486,7 +684,8 @@ function computeSuperlatives(
   teams: ESPNTeam[],
   weeklyScores: Map<number, Map<number, number>>,
   matchups: ESPNMatchup[],
-  teamMap: Record<number, string>
+  teamMap: Record<number, string>,
+  seasonId: number
 ): Superlative[] {
   const superlatives: Superlative[] = [];
 
@@ -1200,10 +1399,12 @@ function computeSuperlatives(
 
   // ── 23. Streaky Scorer ──
   const streakyCounts = new Map<number, number>();
+  const streakyAverages = new Map<number, number>();
   for (const [teamId, weeks] of weeklyScores) {
     const sortedEntries = [...weeks.entries()].sort((a, b) => a[0] - b[0]);
     let alternations = 0;
     let prevAbove: boolean | null = null;
+    let totalScore = 0;
     for (const [week, score] of sortedEntries) {
       const median = weeklyMedians.get(week) || 0;
       const above = score >= median;
@@ -1211,20 +1412,23 @@ function computeSuperlatives(
         alternations++;
       }
       prevAbove = above;
+      totalScore += score;
     }
     streakyCounts.set(teamId, alternations);
+    streakyAverages.set(teamId, sortedEntries.length > 0 ? totalScore / sortedEntries.length : 0);
   }
   const streakyEntries = [...streakyCounts.entries()].sort((a, b) => b[1] - a[1]);
   if (streakyEntries.length > 0) {
     const [teamId, count] = streakyEntries[0];
+    const avg = streakyAverages.get(teamId) || 0;
     superlatives.push({
       title: "Streaky Scorer",
       subtitle: "Most weeks alternating between top-half and bottom-half scores",
       teamName: teamMap[teamId],
       teamId,
-      detail: `${count} alternations`,
+      detail: `${count} alternations · ${formatNumber(avg, 1)} avg`,
       runnersUp: streakyEntries.slice(1, 5).map(([tid, c]) => ({
-        teamName: teamMap[tid], teamId: tid, detail: `${c} alternations`,
+        teamName: teamMap[tid], teamId: tid, detail: `${c} alternations · ${formatNumber(streakyAverages.get(tid) || 0, 1)} avg`,
       })),
     });
   }
@@ -1262,10 +1466,7 @@ function computeSuperlatives(
       if (entry.acquisitionType !== "DRAFT") continue;
       const player = entry.playerPoolEntry?.player;
       if (!player) continue;
-      const seasonStat = player.stats?.find(
-        (s) => s.statSourceId === 0 && s.statSplitTypeId === 0
-      );
-      total += seasonStat?.appliedTotal || 0;
+      total += getSeasonTotalPoints(player.stats, seasonId);
       count++;
     }
     if (count > 0) draftProduction.push({ teamId: team.id, totalPts: total, playerCount: count });
@@ -1294,7 +1495,9 @@ function computeTeamData(
   matchups: ESPNMatchup[],
   teamMap: Record<number, string>,
   teamAbbrevMap: Record<number, string>,
-  seasonId: number
+  seasonId: number,
+  bestPickup: PlayerHighlight | null,
+  topPickups: PlayerHighlight[]
 ): TeamWrappedData {
   // Get weekly scores for this team
   const weeklyScores: number[] = [];
@@ -1336,17 +1539,13 @@ function computeTeamData(
 
   // Team MVP and best pickup
   let mvpPlayer: PlayerHighlight | null = null;
-  let bestPickup: PlayerHighlight | null = null;
 
   if (team.roster?.entries) {
     for (const entry of team.roster.entries) {
       const player = entry.playerPoolEntry?.player;
       if (!player) continue;
 
-      const seasonStat = player.stats?.find(
-        (s) => s.statSourceId === 0 && s.statSplitTypeId === 0 && s.seasonId === seasonId
-      );
-      const total = seasonStat?.appliedTotal || 0;
+      const total = getSeasonTotalPoints(player.stats, seasonId);
 
       const highlight: PlayerHighlight = {
         playerName: player.fullName,
@@ -1360,12 +1559,6 @@ function computeTeamData(
 
       if (!mvpPlayer || total > mvpPlayer.totalPoints) {
         mvpPlayer = highlight;
-      }
-
-      if (entry.acquisitionType === "ADD") {
-        if (!bestPickup || total > bestPickup.totalPoints) {
-          bestPickup = highlight;
-        }
       }
     }
   }
@@ -1412,11 +1605,6 @@ function computeTeamData(
     })
   );
 
-  // Standings rank
-  const allTeamsSorted = [...Object.keys(teamMap)]
-    .map(Number)
-    .sort((a, b) => a - b);
-
   return {
     teamId: team.id,
     teamName: teamMap[team.id],
@@ -1433,9 +1621,9 @@ function computeTeamData(
     worstWeek,
     mvpPlayer,
     bestPickup,
+    topPickups,
     weeklyScores,
-    totalTransactions:
-      team.transactionCounter?.acquisitions || 0,
+    totalTransactions: team.transactionCounter?.acquisitions || 0,
     rivals,
   };
 }

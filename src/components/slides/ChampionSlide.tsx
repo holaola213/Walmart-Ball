@@ -18,7 +18,7 @@ export function ChampionSlide({ data, direction }: SlideProps) {
         className="w-full max-w-5xl"
       >
         <p className="type-kicker text-[#F4C542]/75 mb-6 text-center md:text-left">
-          League Champion
+          Best Regular-Season Record
         </p>
 
         <div className="grid md:grid-cols-[1.15fr_1fr] gap-6 items-center">
@@ -43,7 +43,7 @@ export function ChampionSlide({ data, direction }: SlideProps) {
               {champ.ties > 0 ? `-${champ.ties}` : ""}
             </p>
             <p className="mt-2 type-meta text-white/55">
-              {champ.pointsFor.toFixed(1)} total points
+              {champ.pointsFor.toFixed(1)} regular-season points
             </p>
           </motion.div>
 
@@ -75,7 +75,7 @@ export function ChampionSlide({ data, direction }: SlideProps) {
                 </svg>
               )}
             </div>
-            <p className="type-meta text-white/40">Crowned Weekly</p>
+            <p className="type-meta text-white/40">Finished First</p>
           </motion.div>
         </div>
       </motion.div>

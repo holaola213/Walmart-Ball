@@ -54,11 +54,12 @@ export function PersonalRecapSlide({ team, direction }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="grid grid-cols-2 gap-3 max-w-xs w-full"
+        className="grid grid-cols-2 gap-3 max-w-sm w-full"
       >
         <div className="glass rounded-xl p-4 text-center">
-          <p className="type-number-lg font-bold text-white">
+          <p className="type-number-lg font-bold text-white whitespace-nowrap leading-none">
             {team.record.wins}-{team.record.losses}
+            {team.record.ties > 0 ? `-${team.record.ties}` : ""}
           </p>
           <p className="type-meta text-white/30 mt-1">Record</p>
         </div>
@@ -66,7 +67,7 @@ export function PersonalRecapSlide({ team, direction }: Props) {
           <p className="type-title-md text-[#8B9DFF]">
             {formatOrdinal(team.rank)}
           </p>
-          <p className="type-meta text-white/30 mt-1">Place</p>
+          <p className="type-meta text-white/30 mt-1">Seed</p>
         </div>
         <div className="glass rounded-xl p-4 text-center col-span-2">
           <p className="type-number-lg font-bold text-white">

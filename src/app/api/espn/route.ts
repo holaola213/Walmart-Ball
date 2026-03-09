@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const leagueId = searchParams.get("leagueId");
   const year = searchParams.get("year");
   const views = searchParams.get("views");
+  const scoringPeriodId = searchParams.get("scoringPeriodId");
 
   if (!leagueId || !year) {
     return NextResponse.json(
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
 
   if (views) {
     views.split(",").forEach((v) => params.append("view", v.trim()));
+  }
+  if (scoringPeriodId) {
+    params.set("scoringPeriodId", scoringPeriodId);
   }
 
   // Read auth cookies from server-side env vars (private league support)

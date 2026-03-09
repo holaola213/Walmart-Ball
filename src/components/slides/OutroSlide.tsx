@@ -71,7 +71,7 @@ export function OutroSlide({ data, direction }: SlideProps) {
         <motion.div
           {...MOTION.reveal}
           transition={{ ...MOTION.reveal.transition, delay: 0.45 }}
-          className="mt-5 mb-4 text-center"
+          className="mt-3 mb-3 text-center"
         >
           <span className="inline-flex px-4 py-1.5 rounded-full glass type-meta text-white/60">
             {awards.length} season awards
@@ -81,9 +81,9 @@ export function OutroSlide({ data, direction }: SlideProps) {
         <motion.div
           {...MOTION.reveal}
           transition={{ ...MOTION.reveal.transition, delay: 0.6 }}
-          className="w-full max-h-[48vh] overflow-y-auto custom-scrollbar pr-1"
+          className="w-full"
         >
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-4">
             {awards.map((award, i) => {
               const color = getAwardColor(award.title);
               const awardKey = `${award.teamId}-${award.title}-${i}`;
@@ -93,20 +93,21 @@ export function OutroSlide({ data, direction }: SlideProps) {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.68 + i * 0.03 }}
-                  className="glass rounded-2xl px-3.5 py-4.5 text-center flex flex-col items-center justify-start gap-2.5 min-h-[146px]"
+                  className="group relative overflow-hidden rounded-2xl px-3.5 py-4 text-center flex flex-col items-center justify-start gap-2.5 min-h-[126px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))]"
+                  title={award.detail}
                 >
                   {data.teamLogoMap[award.teamId] && !failedLogos[awardKey] ? (
                     <img
                       src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
                       alt=""
-                      className="w-11 h-11 rounded-full object-cover bg-white/5"
+                      className="w-10 h-10 rounded-full object-cover bg-white/5"
                       onError={() => {
                         setFailedLogos((prev) => ({ ...prev, [awardKey]: true }));
                       }}
                     />
                   ) : (
                     <div
-                      className="w-11 h-11 rounded-full flex items-center justify-center bg-white/8 border border-white/10"
+                      className="w-10 h-10 rounded-full flex items-center justify-center bg-white/8 border border-white/10"
                     >
                       <span className="text-white/55 text-sm font-display">
                         {award.teamName.charAt(0)}
@@ -114,16 +115,24 @@ export function OutroSlide({ data, direction }: SlideProps) {
                     </div>
                   )}
 
-                  <p className="text-white/72 text-sm font-medium leading-tight w-full copy-pretty">
+                  <p className="text-white/72 text-[15px] font-medium leading-tight w-full copy-pretty">
                     {award.teamName}
                   </p>
 
+                  <div className="w-10 h-px bg-white/10" />
+
                   <p
-                    className="type-meta leading-tight mt-auto"
+                    className="type-meta leading-tight mt-auto tracking-[0.24em]"
                     style={{ color: `${color}D9` }}
                   >
                     {award.title}
                   </p>
+
+                  <div className="pointer-events-none absolute inset-0 flex items-end bg-[linear-gradient(180deg,rgba(4,8,18,0.04),rgba(4,8,18,0.92))] px-3.5 py-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <p className="w-full text-center text-[12px] leading-[1.35] text-white/86 copy-pretty">
+                      {award.detail}
+                    </p>
+                  </div>
                 </motion.div>
               );
             })}
@@ -133,7 +142,7 @@ export function OutroSlide({ data, direction }: SlideProps) {
         <motion.p
           {...MOTION.reveal}
           transition={{ ...MOTION.reveal.transition, delay: 1.15 }}
-          className="mt-5 text-[#8B9DFF]/65 type-kicker text-center"
+          className="mt-4 text-[#8B9DFF]/65 type-kicker text-center"
         >
           Continue to your personal chapter
         </motion.p>
