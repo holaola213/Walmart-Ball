@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { useMemo } from "react";
 import { useSlideNavigation } from "@/hooks/useSlideNavigation";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { PALETTE } from "@/lib/constants";
 import { WrappedData } from "@/lib/types";
 
 import { WelcomeSlide } from "./WelcomeSlide";
@@ -146,7 +147,8 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-[#05070b] overflow-hidden select-none"
+      className="fixed inset-0 overflow-hidden select-none"
+      style={{ background: PALETTE.background }}
       onClick={handleClick}
     >
       <ProgressBar current={currentIndex} total={slides.length} />
@@ -158,13 +160,14 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
             e.stopPropagation();
             onHome();
           }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-9 h-9 flex items-center justify-center rounded-full glass text-[#9DE8FF]/70 hover:text-white hover:bg-white/[0.12] transition-all"
+          className="fixed top-4 left-4 z-50 inline-flex h-10 items-center gap-2 rounded-full glass px-3 text-white/68 hover:text-white hover:bg-white/[0.12] transition-all"
           aria-label="Back to home"
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
             <path d="M3 10L10 3L17 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M5 8.5V16H8.5V12H11.5V16H15V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
+          <span className="type-meta text-current">Home</span>
         </button>
       )}
 

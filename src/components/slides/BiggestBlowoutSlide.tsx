@@ -9,7 +9,11 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
   const blowout = data.biggestBlowout;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.blowout} direction={direction}>
+    <SlideLayout
+      accentColor={SLIDE_COLORS.blowout}
+      direction={direction}
+      pattern="contour"
+    >
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -23,48 +27,53 @@ export function BiggestBlowoutSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
-        className="glass-strong rounded-2xl p-6 w-full max-w-sm"
-        style={{ boxShadow: "0 0 30px rgba(59, 130, 246, 0.08)" }}
+        className="w-full max-w-[38rem] px-4"
       >
-        <p className="type-meta text-white/30 text-center mb-4">
+        <p className="type-meta text-white/30 text-center mb-7">
           Week {blowout.week}
         </p>
 
-        <div className="flex items-center justify-between gap-3">
-          <div className="text-center flex-1 min-w-0 flex flex-col items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-6 md:gap-10">
+          <div className="text-center min-w-0 flex flex-col items-center">
             {data.teamLogoMap[blowout.winnerId] && (
               <img
                 src={getTeamLogoUrl(data.teamLogoMap[blowout.winnerId])}
                 alt=""
-                className="w-16 h-16 rounded-full object-cover bg-white/10 mb-2 border-2 border-blue-400/30"
+                className="w-[4.25rem] h-[4.25rem] rounded-full object-cover bg-white/10 mb-3 border-2 border-blue-400/30"
                 style={{ boxShadow: "0 0 15px rgba(59, 130, 246, 0.15)" }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             )}
-            <p className="text-white font-semibold text-sm leading-[1.2] min-h-[2.5rem] flex items-center justify-center copy-pretty text-center">
+            <p className="text-white font-semibold text-[1.1rem] leading-[1.15] min-h-[2.7rem] flex items-center justify-center copy-pretty text-center">
               {blowout.winnerName}
             </p>
-            <p className="type-number-lg font-bold text-[#5ECF9B] mt-1" style={{ textShadow: "0 0 20px rgba(94, 207, 155, 0.2)" }}>
+            <p
+              className="mt-3 font-stat font-bold text-[#5ECF9B] text-[clamp(1.9rem,4.2vw,2.8rem)] tracking-[-0.045em]"
+              style={{ textShadow: "0 0 20px rgba(94, 207, 155, 0.2)" }}
+            >
               {blowout.winnerScore.toFixed(1)}
             </p>
           </div>
 
-          <div className="text-white/15 type-meta shrink-0">VS</div>
+          <div className="text-white/15 type-meta shrink-0 pt-[5.2rem] md:pt-[5.5rem]">VS</div>
 
-          <div className="text-center flex-1 min-w-0 flex flex-col items-center">
+          <div className="text-center min-w-0 flex flex-col items-center">
             {data.teamLogoMap[blowout.loserId] && (
               <img
                 src={getTeamLogoUrl(data.teamLogoMap[blowout.loserId])}
                 alt=""
-                className="w-16 h-16 rounded-full object-cover bg-white/10 mb-2 border-2 border-blue-400/30"
+                className="w-[4.25rem] h-[4.25rem] rounded-full object-cover bg-white/10 mb-3 border-2 border-blue-400/30"
                 style={{ boxShadow: "0 0 15px rgba(59, 130, 246, 0.15)" }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             )}
-            <p className="text-white/55 font-semibold text-sm leading-[1.2] min-h-[2.5rem] flex items-center justify-center copy-pretty text-center">
+            <p className="text-white/72 font-semibold text-[1.1rem] leading-[1.15] min-h-[2.7rem] flex items-center justify-center copy-pretty text-center">
               {blowout.loserName}
             </p>
-            <p className="type-number-lg font-bold text-[#F28B82] mt-1" style={{ textShadow: "0 0 20px rgba(242, 139, 130, 0.2)" }}>
+            <p
+              className="mt-3 font-stat font-bold text-[#F28B82] text-[clamp(1.9rem,4.2vw,2.8rem)] tracking-[-0.045em]"
+              style={{ textShadow: "0 0 20px rgba(242, 139, 130, 0.2)" }}
+            >
               {blowout.loserScore.toFixed(1)}
             </p>
           </div>

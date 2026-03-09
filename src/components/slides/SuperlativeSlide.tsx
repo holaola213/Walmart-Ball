@@ -7,6 +7,8 @@ import { Superlative } from "@/lib/types";
 import { RunnersUpList } from "@/components/ui/RunnersUpList";
 import { formatNumber, formatNumbersInText } from "@/lib/utils";
 
+const SUPERLATIVE_PATTERNS = ["beams-soft", "wash", "orbs"] as const;
+
 interface Props {
   award: Superlative;
   index: number;
@@ -16,13 +18,14 @@ interface Props {
 
 export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props) {
   const accentColor = SUPERLATIVE_COLORS[index % SUPERLATIVE_COLORS.length];
+  const pattern = SUPERLATIVE_PATTERNS[index % SUPERLATIVE_PATTERNS.length];
   const teams = award.tiedTeams || [{ teamName: award.teamName, teamId: award.teamId }];
   const isTied = teams.length > 1;
   const isHeartbreakDetailed = isTied && award.closeLossMatchups && Object.keys(award.closeLossMatchups).length > 0;
   const isNailBiterDetailed = !isTied && award.closeGameMatchups && award.closeGameMatchups.length > 0;
 
   return (
-    <SlideLayout accentColor={accentColor} direction={direction}>
+    <SlideLayout accentColor={accentColor} direction={direction} pattern={pattern}>
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -68,11 +71,11 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                 key={t.teamId}
                 className={`relative rounded-full flex items-center justify-center border-2 ${isTied ? "w-16 h-16" : "w-24 h-24"}`}
                 style={{
-                  borderColor: `${accentColor}60`,
-                  background: `${accentColor}15`,
+                  borderColor: "rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.08)",
                 }}
               >
-                <span className={`font-display text-white/60 ${isTied ? "text-2xl" : "text-3xl"}`}>
+                <span className={`font-display text-white/55 ${isTied ? "text-2xl" : "text-3xl"}`}>
                   {t.teamName.charAt(0)}
                 </span>
               </div>
@@ -139,9 +142,9 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                   ) : (
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center border"
-                      style={{ borderColor: `${accentColor}40`, background: `${accentColor}15` }}
+                      style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.08)" }}
                     >
-                      <span className="font-display text-sm" style={{ color: `${accentColor}D9` }}>{t.teamName.charAt(0)}</span>
+                      <span className="font-display text-sm text-white/55">{t.teamName.charAt(0)}</span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -207,9 +210,9 @@ export function SuperlativeSlide({ award, index, teamLogoMap, direction }: Props
                 ) : (
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center border-2"
-                    style={{ borderColor: `${accentColor}50`, background: `${accentColor}15` }}
+                    style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.08)" }}
                   >
-                    <span className="font-display text-base" style={{ color: `${accentColor}D9` }}>{award.teamName.charAt(0)}</span>
+                    <span className="font-display text-base text-white/55">{award.teamName.charAt(0)}</span>
                   </div>
                 );
               })()}

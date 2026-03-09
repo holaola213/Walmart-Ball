@@ -11,7 +11,7 @@ export function WaiverMvpSlide({ data, direction }: SlideProps) {
   const waiver = data.waiverMvp;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.waiverMvp} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.waiverMvp} direction={direction} pattern="orbs">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

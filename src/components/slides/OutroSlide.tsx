@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { SlideLayout } from "./SlideLayout";
 import { SLIDE_COLORS, getTeamLogoUrl } from "@/lib/constants";
@@ -47,9 +48,10 @@ function getAwardColor(title: string): string {
 
 export function OutroSlide({ data, direction }: SlideProps) {
   const awards = data.teamAwards;
+  const [failedLogos, setFailedLogos] = useState<Record<string, boolean>>({});
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.outro} direction={direction} mood="hero">
+    <SlideLayout accentColor={SLIDE_COLORS.outro} direction={direction} mood="hero" pattern="orbs">
       <motion.div
         {...MOTION.intro}
         transition={{ ...MOTION.intro.transition, delay: 0.15 }}
@@ -81,43 +83,43 @@ export function OutroSlide({ data, direction }: SlideProps) {
           transition={{ ...MOTION.reveal.transition, delay: 0.6 }}
           className="w-full max-h-[48vh] overflow-y-auto custom-scrollbar pr-1"
         >
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
             {awards.map((award, i) => {
               const color = getAwardColor(award.title);
+              const awardKey = `${award.teamId}-${award.title}-${i}`;
               return (
                 <motion.div
-                  key={`${award.teamId}-${award.title}-${i}`}
+                  key={awardKey}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.68 + i * 0.03 }}
-                  className="glass rounded-xl px-3 py-4 text-center flex flex-col items-center gap-2 min-h-[132px]"
+                  className="glass rounded-2xl px-3.5 py-4.5 text-center flex flex-col items-center justify-start gap-2.5 min-h-[146px]"
                 >
-                  {data.teamLogoMap[award.teamId] ? (
+                  {data.teamLogoMap[award.teamId] && !failedLogos[awardKey] ? (
                     <img
                       src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
                       alt=""
-                      className="w-10 h-10 rounded-full object-cover bg-white/5"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
+                      className="w-11 h-11 rounded-full object-cover bg-white/5"
+                      onError={() => {
+                        setFailedLogos((prev) => ({ ...prev, [awardKey]: true }));
                       }}
                     />
                   ) : (
                     <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5"
-                      style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                      className="w-11 h-11 rounded-full flex items-center justify-center bg-white/8 border border-white/10"
                     >
-                      <span className="text-white/45 text-sm font-display">
+                      <span className="text-white/55 text-sm font-display">
                         {award.teamName.charAt(0)}
                       </span>
                     </div>
                   )}
 
-                  <p className="text-white/65 text-sm font-medium leading-tight w-full copy-pretty">
+                  <p className="text-white/72 text-sm font-medium leading-tight w-full copy-pretty">
                     {award.teamName}
                   </p>
 
                   <p
-                    className="type-meta leading-tight"
+                    className="type-meta leading-tight mt-auto"
                     style={{ color: `${color}D9` }}
                   >
                     {award.title}

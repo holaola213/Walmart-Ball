@@ -11,7 +11,7 @@ export function WorstWeekSlide({ data, direction }: SlideProps) {
   const worst = data.worstWeek;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.worstWeek} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.worstWeek} direction={direction} pattern="beams">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

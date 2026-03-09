@@ -16,14 +16,14 @@ export function PersonalMvpSlide({ team, direction }: Props) {
 
   if (!mvp) {
     return (
-      <SlideLayout accentColor={SLIDE_COLORS.personalMvp} direction={direction}>
+      <SlideLayout accentColor={SLIDE_COLORS.personalMvp} direction={direction} pattern="orbs">
         <p className="text-white/40">No player data available</p>
       </SlideLayout>
     );
   }
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.personalMvp} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.personalMvp} direction={direction} pattern="orbs">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

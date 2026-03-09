@@ -19,6 +19,7 @@ export function PersonalRivalsSlide({ team, direction }: Props) {
     <SlideLayout
       accentColor={SLIDE_COLORS.personalRivals}
       direction={direction}
+      pattern="contour"
     >
       <motion.p
         initial={{ opacity: 0 }}

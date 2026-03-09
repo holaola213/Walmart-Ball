@@ -11,7 +11,7 @@ export function MvpPlayerSlide({ data, direction }: SlideProps) {
   const mvp = data.mvpPlayer;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.mvp} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.mvp} direction={direction} pattern="orbs">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

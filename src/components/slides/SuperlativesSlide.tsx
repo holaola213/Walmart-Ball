@@ -8,7 +8,7 @@ import { formatNumbersInText } from "@/lib/utils";
 
 export function SuperlativesSlide({ data, direction }: SlideProps) {
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.superlatives} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.superlatives} direction={direction} pattern="grid">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

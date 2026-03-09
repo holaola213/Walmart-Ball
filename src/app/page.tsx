@@ -197,8 +197,8 @@ export default function Home() {
 
             {/* Ready indicator dot */}
             <div className="flex items-center justify-center gap-1.5 mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#72D5FF] animate-pulse" />
-              <span className="type-meta text-[#72D5FF]/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5ECF9B] animate-pulse" />
+              <span className="type-meta text-[#5ECF9B]/85">
                 Ready
               </span>
             </div>

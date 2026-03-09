@@ -52,7 +52,7 @@ export function TeamSelector({ data, onSelectTeam, onBack }: Props) {
             onClick={() => onSelectTeam(team.teamId)}
             className="glass hover:bg-white/[0.1] hover:border-white/20 rounded-xl p-4 text-left transition-all group flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-full bg-white/10 shrink-0 flex items-center justify-center border border-white/15 overflow-hidden">
+            <div className="w-10 h-10 rounded-full bg-white/8 shrink-0 flex items-center justify-center border border-white/10 overflow-hidden">
               {data.teamLogoMap[team.teamId] && !failedLogos[team.teamId] ? (
                 <img
                   src={getTeamLogoUrl(data.teamLogoMap[team.teamId])}

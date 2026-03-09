@@ -10,7 +10,7 @@ export function CategoryLeadersSlide({ data, direction }: SlideProps) {
   if (!leaders) return null;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.categories} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.categories} direction={direction} pattern="grid">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

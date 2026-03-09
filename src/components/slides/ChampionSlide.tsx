@@ -11,7 +11,7 @@ export function ChampionSlide({ data, direction }: SlideProps) {
   const logo = data.teamLogoMap[champ.teamId];
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.champion} direction={direction} mood="hero">
+    <SlideLayout accentColor={SLIDE_COLORS.champion} direction={direction} mood="hero" pattern="contour">
       <motion.div
         {...MOTION.intro}
         transition={{ ...MOTION.intro.transition, delay: 0.15 }}

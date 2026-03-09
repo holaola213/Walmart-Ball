@@ -9,7 +9,7 @@ export function TradeSummarySlide({ data, direction }: SlideProps) {
   const trades = data.tradeSummary;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.trades} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.trades} direction={direction} pattern="beams">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

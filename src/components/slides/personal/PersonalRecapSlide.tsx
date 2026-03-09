@@ -16,6 +16,7 @@ export function PersonalRecapSlide({ team, direction }: Props) {
     <SlideLayout
       accentColor={SLIDE_COLORS.personalRecap}
       direction={direction}
+      pattern="grid"
     >
       <motion.p
         initial={{ opacity: 0 }}

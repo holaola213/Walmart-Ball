@@ -29,11 +29,11 @@ export function LoadingScreen({ progress, status }: Props) {
         transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
       >
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="30" fill="#E9C46A" stroke="#8E6E3B" strokeWidth="2" />
-          <path d="M32 2C32 2 32 62 32 62" stroke="#8E6E3B" strokeWidth="1.5" />
-          <path d="M2 32C2 32 62 32 62 32" stroke="#8E6E3B" strokeWidth="1.5" />
-          <path d="M8 12C20 20 44 20 56 12" stroke="#8E6E3B" strokeWidth="1.5" fill="none" />
-          <path d="M8 52C20 44 44 44 56 52" stroke="#8E6E3B" strokeWidth="1.5" fill="none" />
+          <circle cx="32" cy="32" r="30" fill="#F28A2E" stroke="#8F4516" strokeWidth="2" />
+          <path d="M32 2C32 2 32 62 32 62" stroke="#8F4516" strokeWidth="1.5" />
+          <path d="M2 32C2 32 62 32 62 32" stroke="#8F4516" strokeWidth="1.5" />
+          <path d="M8 12C20 20 44 20 56 12" stroke="#8F4516" strokeWidth="1.5" fill="none" />
+          <path d="M8 52C20 44 44 44 56 52" stroke="#8F4516" strokeWidth="1.5" fill="none" />
         </svg>
       </motion.div>
 

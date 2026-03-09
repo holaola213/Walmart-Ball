@@ -11,7 +11,7 @@ export function BestWeekSlide({ data, direction }: SlideProps) {
   const best = data.bestWeek;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.bestWeek} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.bestWeek} direction={direction} pattern="beams">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

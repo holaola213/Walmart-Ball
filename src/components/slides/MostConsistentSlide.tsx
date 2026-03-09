@@ -11,7 +11,11 @@ export function MostConsistentSlide({ data, direction }: SlideProps) {
   const team = data.mostConsistent;
 
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.consistent} direction={direction}>
+    <SlideLayout
+      accentColor={SLIDE_COLORS.consistent}
+      direction={direction}
+      pattern="beams"
+    >
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -49,19 +53,19 @@ export function MostConsistentSlide({ data, direction }: SlideProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="flex gap-6 text-center"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[34rem] text-center"
       >
-        <div className="glass rounded-xl px-6 py-4">
+        <div className="glass rounded-2xl px-6 py-5">
           <p className="type-number-lg font-bold text-indigo-400">
             {formatNumber(team.averageScore, 1)}
           </p>
-          <p className="type-meta text-white/66 mt-1">Avg pts/wk</p>
+          <p className="type-meta text-white/58 mt-2">Avg pts/wk</p>
         </div>
-        <div className="glass rounded-xl px-6 py-4">
+        <div className="glass rounded-2xl px-6 py-5">
           <p className="type-number-lg font-bold text-indigo-400">
             {formatNumber(team.standardDeviation, 1)}
           </p>
-          <p className="type-meta text-white/66 mt-1">Std dev</p>
+          <p className="type-meta text-white/58 mt-2">+/- points</p>
         </div>
       </motion.div>
 
@@ -80,7 +84,7 @@ export function MostConsistentSlide({ data, direction }: SlideProps) {
           delay={1.1}
           items={data.mostConsistentRunnersUp.map((t) => ({
             label: t.teamName,
-            value: `${formatNumber(t.averageScore, 1)} avg / ${formatNumber(t.standardDeviation, 1)} SD`,
+            value: `${formatNumber(t.averageScore, 1)} avg / +- ${formatNumber(t.standardDeviation, 1)}`,
             avatarUrl: data.teamLogoMap[t.teamId] ? getTeamLogoUrl(data.teamLogoMap[t.teamId]) : undefined,
           }))}
         />

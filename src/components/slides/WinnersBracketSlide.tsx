@@ -15,14 +15,15 @@ function TeamCell({
 }) {
   return (
     <div
-      className="flex items-center gap-2 w-[175px] md:w-[210px] h-[40px] md:h-[44px] rounded-lg px-2.5 md:px-3"
+      className="flex items-center gap-2.5 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl px-3 md:px-3.5"
       style={{
-        background: "linear-gradient(90deg, rgba(63, 255, 192, 0.16), rgba(15, 24, 38, 0.82))",
-        border: "1px solid rgba(148, 241, 214, 0.28)",
+        background: "linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(14, 22, 36, 0.76))",
+        border: "1px solid rgba(180, 226, 214, 0.18)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
       <span
-        className="font-stat text-[11px] md:text-[12px] shrink-0 w-6 text-right"
+        className="font-stat text-[11px] md:text-[12px] shrink-0 w-6 text-right tracking-[0.08em]"
         style={{ color: `${accentColor}C7` }}
       >
         #{team.rank}
@@ -31,21 +32,21 @@ function TeamCell({
         <img
           src={getTeamLogoUrl(team.logo)}
           alt=""
-          className="w-6 h-6 rounded-full object-cover bg-white/10 shrink-0"
+          className="w-7 h-7 rounded-full object-cover bg-white/10 shrink-0"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
       ) : (
-        <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 shrink-0 flex items-center justify-center">
-          <span className="text-white/82 text-[10px] font-display">{team.teamName.charAt(0)}</span>
+        <div className="w-7 h-7 rounded-full bg-white/8 border border-white/10 shrink-0 flex items-center justify-center">
+          <span className="text-white/55 text-[10px] font-display">{team.teamName.charAt(0)}</span>
         </div>
       )}
       <div className="flex-1 min-w-0">
         <p className="text-white/92 text-[11px] md:text-[12px] font-medium truncate leading-tight">
           {team.teamName}
         </p>
-        <p className="text-white/72 text-[10px] font-stat leading-tight">
+        <p className="text-white/56 text-[10px] font-stat leading-tight tracking-[0.06em]">
           {team.wins}-{team.losses}
         </p>
       </div>
@@ -56,10 +57,10 @@ function TeamCell({
 function EmptySlot({ showTrophy = false }: { showTrophy?: boolean }) {
   return (
     <div
-      className="flex items-center justify-center gap-1 w-[175px] md:w-[210px] h-[40px] md:h-[44px] rounded-lg"
+      className="flex items-center justify-center gap-1 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl"
       style={{
-        background: "rgba(15, 24, 38, 0.72)",
-        border: "1px dashed rgba(155, 245, 219, 0.3)",
+        background: "rgba(13, 20, 32, 0.7)",
+        border: "1px dashed rgba(186, 230, 214, 0.22)",
       }}
     >
       {showTrophy && (
@@ -73,9 +74,9 @@ function EmptySlot({ showTrophy = false }: { showTrophy?: boolean }) {
 }
 
 function Connector({ heightPx }: { heightPx: number }) {
-  const border = "1px solid rgba(255, 255, 255, 0.12)";
+  const border = "1px solid rgba(255, 255, 255, 0.14)";
   return (
-    <div className="flex flex-col shrink-0 w-[18px]">
+    <div className="flex flex-col shrink-0 w-[20px]">
       <div
         style={{
           borderTop: border,
@@ -169,7 +170,7 @@ export function WinnersBracketSlide({ data, direction }: SlideProps) {
   );
 
   return (
-    <SlideLayout accentColor={accentColor} direction={direction}>
+    <SlideLayout accentColor={accentColor} direction={direction} pattern="grid">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -200,48 +201,50 @@ export function WinnersBracketSlide({ data, direction }: SlideProps) {
       </motion.p>
 
       <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-          className="flex items-center mb-2 min-w-[760px] mx-auto justify-center"
-        >
-          <span className="w-[175px] md:w-[210px] text-center text-white/65 type-meta">
-            Round 1
-          </span>
-          <span className="w-[30px] shrink-0" />
-          <span className="w-[175px] md:w-[210px] text-center text-white/65 type-meta">
-            Semifinals
-          </span>
-          <span className="w-[30px] shrink-0" />
-          <span className="w-[175px] md:w-[210px] text-center text-white/65 type-meta">
-            Championship
-          </span>
-        </motion.div>
-
-        <div className="flex items-center min-w-[760px] mx-auto">
-          <div className="flex flex-col" style={{ gap: `${matchupGap * 2}px` }}>
-            {renderHalf(topR1, 0.6)}
-            {renderHalf(botR1, 0.75)}
-          </div>
-
+        <div className="w-fit min-w-[792px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.1 }}
-            className="shrink-0 flex items-center"
+            transition={{ delay: 0.55 }}
+            className="flex items-center mb-3 justify-center"
           >
-            <Connector heightPx={connectorSemi} />
-            <HLine />
+            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+              Round 1
+            </span>
+            <span className="w-[32px] shrink-0" />
+            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+              Semifinals
+            </span>
+            <span className="w-[32px] shrink-0" />
+            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+              Championship
+            </span>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.3 }}
-          >
-            <EmptySlot showTrophy />
-          </motion.div>
+          <div className="flex items-center w-fit mx-auto">
+            <div className="flex flex-col" style={{ gap: `${matchupGap * 2}px` }}>
+              {renderHalf(topR1, 0.6)}
+              {renderHalf(botR1, 0.75)}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.1 }}
+              className="shrink-0 flex items-center"
+            >
+              <Connector heightPx={connectorSemi} />
+              <HLine />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.3 }}
+            >
+              <EmptySlot showTrophy />
+            </motion.div>
+          </div>
         </div>
       </div>
     </SlideLayout>

@@ -12,7 +12,7 @@ export function RivalrySlide({ data, direction }: SlideProps) {
   const accent = SLIDE_COLORS.rivalry;
 
   return (
-    <SlideLayout accentColor={accent} direction={direction}>
+    <SlideLayout accentColor={accent} direction={direction} pattern="contour">
       {/* Header */}
       <motion.p
         initial={{ opacity: 0 }}
@@ -54,9 +54,9 @@ export function RivalrySlide({ data, direction }: SlideProps) {
             ) : (
               <div
                 className="relative w-16 h-16 rounded-full flex items-center justify-center border-2"
-                style={{ borderColor: `${accent}50`, background: `${accent}15` }}
+                style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.08)" }}
               >
-                <span className="font-display text-2xl text-white/60">
+                <span className="font-display text-2xl text-white/55">
                   {rivalry.team1Name.charAt(0)}
                 </span>
               </div>
@@ -108,9 +108,9 @@ export function RivalrySlide({ data, direction }: SlideProps) {
             ) : (
               <div
                 className="relative w-16 h-16 rounded-full flex items-center justify-center border-2"
-                style={{ borderColor: `${accent}50`, background: `${accent}15` }}
+                style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.08)" }}
               >
-                <span className="font-display text-2xl text-white/60">
+                <span className="font-display text-2xl text-white/55">
                   {rivalry.team2Name.charAt(0)}
                 </span>
               </div>

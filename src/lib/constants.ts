@@ -35,6 +35,16 @@ export const POSITION_MAP: Record<number, string> = {
   5: "C",
 };
 
+export const PALETTE = {
+  background: "#05070b",
+  primary: "#8B9DFF",
+  cyan: "#72D5FF",
+  green: "#5ECF9B",
+  orange: "#F0A35E",
+  red: "#F28B82",
+  gold: "#E9C46A",
+};
+
 export const SLIDE_COLORS: Record<string, string> = {
   welcome: "#66E4FF",
   standings: "#59BEFF",

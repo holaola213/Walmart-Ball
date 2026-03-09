@@ -19,6 +19,7 @@ export function PersonalPickupSlide({ team, direction }: Props) {
       <SlideLayout
         accentColor={SLIDE_COLORS.personalPickup}
         direction={direction}
+        pattern="orbs"
       >
         <motion.p
           initial={{ opacity: 0 }}
@@ -38,6 +39,7 @@ export function PersonalPickupSlide({ team, direction }: Props) {
     <SlideLayout
       accentColor={SLIDE_COLORS.personalPickup}
       direction={direction}
+      pattern="orbs"
     >
       <motion.p
         initial={{ opacity: 0 }}

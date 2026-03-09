@@ -15,14 +15,15 @@ function TeamCell({
 }) {
   return (
     <div
-      className="flex items-center gap-2 w-[175px] md:w-[210px] h-[40px] md:h-[44px] rounded-lg px-2.5 md:px-3"
+      className="flex items-center gap-2.5 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl px-3 md:px-3.5"
       style={{
-        background: "linear-gradient(90deg, rgba(111, 174, 255, 0.18), rgba(15, 24, 38, 0.82))",
-        border: "1px solid rgba(157, 208, 255, 0.3)",
+        background: "linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(14, 22, 36, 0.76))",
+        border: "1px solid rgba(180, 216, 244, 0.18)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
       <span
-        className="font-stat text-[11px] md:text-[12px] shrink-0 w-6 text-right"
+        className="font-stat text-[11px] md:text-[12px] shrink-0 w-6 text-right tracking-[0.08em]"
         style={{ color: `${accentColor}C7` }}
       >
         #{team.rank}
@@ -31,21 +32,21 @@ function TeamCell({
         <img
           src={getTeamLogoUrl(team.logo)}
           alt=""
-          className="w-6 h-6 rounded-full object-cover bg-white/10 shrink-0"
+          className="w-7 h-7 rounded-full object-cover bg-white/10 shrink-0"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
       ) : (
-        <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 shrink-0 flex items-center justify-center">
-          <span className="text-white/82 text-[10px] font-display">{team.teamName.charAt(0)}</span>
+        <div className="w-7 h-7 rounded-full bg-white/8 border border-white/10 shrink-0 flex items-center justify-center">
+          <span className="text-white/55 text-[10px] font-display">{team.teamName.charAt(0)}</span>
         </div>
       )}
       <div className="flex-1 min-w-0">
         <p className="text-white/92 text-[11px] md:text-[12px] font-medium truncate leading-tight">
           {team.teamName}
         </p>
-        <p className="text-white/72 text-[10px] font-stat leading-tight">
+        <p className="text-white/56 text-[10px] font-stat leading-tight tracking-[0.06em]">
           {team.wins}-{team.losses}
         </p>
       </div>
@@ -56,10 +57,10 @@ function TeamCell({
 function EmptySlot() {
   return (
     <div
-      className="flex items-center justify-center gap-1 w-[175px] md:w-[210px] h-[40px] md:h-[44px] rounded-lg"
+      className="flex items-center justify-center gap-1 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl"
       style={{
-        background: "rgba(15, 24, 38, 0.72)",
-        border: "1px dashed rgba(162, 206, 255, 0.3)",
+        background: "rgba(13, 20, 32, 0.7)",
+        border: "1px dashed rgba(180, 216, 244, 0.22)",
       }}
     >
       <span className="font-stat text-[10px] text-white/58">TBD</span>
@@ -68,9 +69,9 @@ function EmptySlot() {
 }
 
 function Connector({ heightPx }: { heightPx: number }) {
-  const border = "1px solid rgba(255, 255, 255, 0.12)";
+  const border = "1px solid rgba(255, 255, 255, 0.14)";
   return (
-    <div className="flex flex-col shrink-0" style={{ width: "18px" }}>
+    <div className="flex flex-col shrink-0" style={{ width: "20px" }}>
       <div
         style={{
           borderTop: border,
@@ -121,7 +122,7 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
   const connectorH = pairH + matchupGap;
 
   return (
-    <SlideLayout accentColor={accentColor} direction={direction}>
+    <SlideLayout accentColor={accentColor} direction={direction} pattern="grid">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -152,54 +153,56 @@ export function ConsolationBracketSlide({ data, direction }: SlideProps) {
       </motion.p>
 
       <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-          className="flex items-center mb-2 min-w-[420px] mx-auto"
-        >
-          <span className="w-[175px] md:w-[210px] text-center text-white/65 type-meta">
-            Round 1
-          </span>
-          <span className="w-[30px] shrink-0" />
-          <span className="w-[175px] md:w-[210px] text-center text-white/65 type-meta">
-            Finals
-          </span>
-        </motion.div>
-
-        <div className="flex items-center min-w-[420px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-col"
-            style={{ gap: `${matchupGap}px` }}
-          >
-            {matchups.map((pair, i) => (
-              <div key={i} className="flex flex-col" style={{ gap: `${pairGap}px` }}>
-                <TeamCell team={pair[0]} accentColor={accentColor} />
-                <TeamCell team={pair[1]} accentColor={accentColor} />
-              </div>
-            ))}
-          </motion.div>
-
+        <div className="w-fit min-w-[452px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="shrink-0 flex items-center"
+            transition={{ delay: 0.55 }}
+            className="flex items-center mb-3 justify-center"
           >
-            <Connector heightPx={connectorH} />
-            <HLine />
+            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+              Round 1
+            </span>
+            <span className="w-[32px] shrink-0" />
+            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+              Finals
+            </span>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.1 }}
-          >
-            <EmptySlot />
-          </motion.div>
+          <div className="flex items-center w-fit mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col"
+              style={{ gap: `${matchupGap}px` }}
+            >
+              {matchups.map((pair, i) => (
+                <div key={i} className="flex flex-col" style={{ gap: `${pairGap}px` }}>
+                  <TeamCell team={pair[0]} accentColor={accentColor} />
+                  <TeamCell team={pair[1]} accentColor={accentColor} />
+                </div>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="shrink-0 flex items-center"
+            >
+              <Connector heightPx={connectorH} />
+              <HLine />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.1 }}
+            >
+              <EmptySlot />
+            </motion.div>
+          </div>
         </div>
       </div>
     </SlideLayout>

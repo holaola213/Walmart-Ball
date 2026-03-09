@@ -13,7 +13,7 @@ interface Props {
 
 export function PersonalBestWeekSlide({ team, direction }: Props) {
   return (
-    <SlideLayout accentColor={SLIDE_COLORS.personalBest} direction={direction}>
+    <SlideLayout accentColor={SLIDE_COLORS.personalBest} direction={direction} pattern="beams">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
