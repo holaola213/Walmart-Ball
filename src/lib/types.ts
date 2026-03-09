@@ -298,6 +298,7 @@ export interface TeamWrappedData {
 export interface RivalRecord {
   opponentName: string;
   opponentId: number;
+  logo?: string;
   wins: number;
   losses: number;
   ties: number;

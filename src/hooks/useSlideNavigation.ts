@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-export function useSlideNavigation(totalSlides: number) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+export function useSlideNavigation(totalSlides: number, initialIndex: number = 0) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [direction, setDirection] = useState(1);
 
   const goNext = useCallback(() => {

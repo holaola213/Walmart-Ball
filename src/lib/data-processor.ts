@@ -108,6 +108,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
       completedMatchups,
       teamMap,
       teamAbbrevMap,
+      teamLogoMap,
       seasonId,
       bestPickupByTeam.get(team.id) || null,
       topPickupsByTeam.get(team.id) || []
@@ -1495,6 +1496,7 @@ function computeTeamData(
   matchups: ESPNMatchup[],
   teamMap: Record<number, string>,
   teamAbbrevMap: Record<number, string>,
+  teamLogoMap: Record<number, string>,
   seasonId: number,
   bestPickup: PlayerHighlight | null,
   topPickups: PlayerHighlight[]
@@ -1601,6 +1603,7 @@ function computeTeamData(
     ([oppId, record]) => ({
       opponentName: teamMap[oppId],
       opponentId: oppId,
+      logo: teamLogoMap[oppId],
       ...record,
     })
   );

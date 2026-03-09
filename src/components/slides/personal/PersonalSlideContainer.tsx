@@ -13,6 +13,7 @@ import { PersonalPickupSlide } from "./PersonalPickupSlide";
 interface PersonalSlideProps {
   team: TeamWrappedData;
   direction: number;
+  teamLogoMap: Record<number, string>;
 }
 
 type PersonalSlideComponent = React.ComponentType<PersonalSlideProps>;
@@ -27,10 +28,11 @@ const PERSONAL_SLIDES: { component: PersonalSlideComponent; id: string }[] = [
 
 interface Props {
   team: TeamWrappedData;
+  teamLogoMap: Record<number, string>;
   onBack: () => void;
 }
 
-export function PersonalSlideContainer({ team, onBack }: Props) {
+export function PersonalSlideContainer({ team, teamLogoMap, onBack }: Props) {
   const { currentIndex, direction, goNext, goPrev, isLast } =
     useSlideNavigation(PERSONAL_SLIDES.length);
 
@@ -71,6 +73,7 @@ export function PersonalSlideContainer({ team, onBack }: Props) {
           key={PERSONAL_SLIDES[currentIndex].id}
           team={team}
           direction={direction}
+          teamLogoMap={teamLogoMap}
         />
       </AnimatePresence>
     </div>

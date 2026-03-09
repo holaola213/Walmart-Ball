@@ -13,6 +13,7 @@ interface Props {
 
 export function TeamSelector({ data, onSelectTeam, onBack }: Props) {
   const [failedLogos, setFailedLogos] = useState<Record<number, boolean>>({});
+  const [loadedLogos, setLoadedLogos] = useState<Record<number, boolean>>({});
 
   return (
     <div
@@ -24,49 +25,46 @@ export function TeamSelector({ data, onSelectTeam, onBack }: Props) {
         `,
       }}
     >
-      <motion.h2
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="type-title-md text-white mb-2 text-center tracking-[0.04em] title-balance measure-medium"
-      >
+      <h2 className="type-title-md text-white mb-2 text-center tracking-[0.04em] title-balance measure-medium">
         SEE YOUR PERSONAL STATS
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="type-kicker text-white/30 mb-10 text-center"
-      >
+      </h2>
+      <p className="type-kicker text-white/30 mb-10 text-center">
         SELECT YOUR TEAM
-      </motion.p>
+      </p>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl w-full">
-        {data.standings.map((team, i) => (
+        {data.standings.map((team) => (
           <motion.button
             key={team.teamId}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 + i * 0.035, duration: 0.35 }}
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => onSelectTeam(team.teamId)}
             className="rounded-2xl px-4 py-4 text-left transition-all group flex items-center gap-3 min-h-[108px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))] hover:border-white/18 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.025))]"
           >
-            <div className="w-11 h-11 rounded-full bg-white/8 shrink-0 flex items-center justify-center border border-white/10 overflow-hidden">
+            <div className="relative w-11 h-11 rounded-full bg-white/8 shrink-0 flex items-center justify-center border border-white/10 overflow-hidden">
+              <span
+                className={`absolute inset-0 flex items-center justify-center font-display text-sm text-white/55 leading-none transition-opacity duration-200 ${
+                  loadedLogos[team.teamId] && !failedLogos[team.teamId] ? "opacity-0" : "opacity-100"
+                }`}
+              >
+                {team.teamName.charAt(0).toUpperCase()}
+              </span>
+
               {data.teamLogoMap[team.teamId] && !failedLogos[team.teamId] ? (
                 <img
                   src={getTeamLogoUrl(data.teamLogoMap[team.teamId])}
                   alt=""
-                  className="w-11 h-11 rounded-full object-cover"
+                  className={`absolute inset-0 w-11 h-11 rounded-full object-cover transition-opacity duration-200 ${
+                    loadedLogos[team.teamId] ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => {
+                    setLoadedLogos((prev) => ({ ...prev, [team.teamId]: true }));
+                  }}
                   onError={() => {
                     setFailedLogos((prev) => ({ ...prev, [team.teamId]: true }));
                   }}
                 />
-              ) : (
-                <span className="font-display text-sm text-white/55 leading-none">
-                  {team.teamName.charAt(0).toUpperCase()}
-                </span>
-              )}
+              ) : null}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-white font-semibold text-[15px] leading-[1.22] break-words group-hover:text-[#8B9DFF] transition-colors copy-pretty">
@@ -82,15 +80,12 @@ export function TeamSelector({ data, onSelectTeam, onBack }: Props) {
         ))}
       </div>
 
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+      <button
         onClick={onBack}
         className="mt-10 text-white/25 hover:text-white/50 type-kicker transition-colors"
       >
         BACK TO LEAGUE WRAPPED
-      </motion.button>
+      </button>
     </div>
   );
 }

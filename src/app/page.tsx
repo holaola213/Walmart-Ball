@@ -5,7 +5,6 @@ import { useWrappedData } from "@/hooks/useWrappedData";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { ErrorScreen } from "@/components/ui/ErrorScreen";
 import { SlideContainer } from "@/components/slides/SlideContainer";
-import { TeamSelector } from "@/components/ui/TeamSelector";
 import { PersonalSlideContainer } from "@/components/slides/personal/PersonalSlideContainer";
 import { motion } from "framer-motion";
 
@@ -26,12 +25,13 @@ function useCountdown(target: Date) {
   return { days, hours, minutes, seconds, expired: diff === 0 };
 }
 
-type AppView = "landing" | "loading" | "slides" | "teamSelect" | "personal";
+type AppView = "landing" | "loading" | "slides" | "personal";
 
 export default function Home() {
   const { data, status, error, progress, fetchData } = useWrappedData();
   const [view, setView] = useState<AppView>("landing");
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+  const [slideInitialId, setSlideInitialId] = useState<string | undefined>(undefined);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
@@ -49,6 +49,7 @@ export default function Home() {
   };
 
   const handleStart = () => {
+    setSlideInitialId(undefined);
     setView("loading");
     fetchData();
   };
@@ -71,19 +72,14 @@ export default function Home() {
 
   if (effectiveView === "slides" && data) {
     return (
-      <SlideContainer data={data} onFinished={() => setView("teamSelect")} onHome={() => setView("landing")} />
-    );
-  }
-
-  if (effectiveView === "teamSelect" && data) {
-    return (
-      <TeamSelector
+      <SlideContainer
         data={data}
+        initialSlideId={slideInitialId}
         onSelectTeam={(teamId) => {
           setSelectedTeamId(teamId);
           setView("personal");
         }}
-        onBack={() => setView("slides")}
+        onHome={() => setView("landing")}
       />
     );
   }
@@ -94,7 +90,11 @@ export default function Home() {
       return (
         <PersonalSlideContainer
           team={teamData}
-          onBack={() => setView("teamSelect")}
+          teamLogoMap={data.teamLogoMap}
+          onBack={() => {
+            setSlideInitialId("outro");
+            setView("slides");
+          }}
         />
       );
     }

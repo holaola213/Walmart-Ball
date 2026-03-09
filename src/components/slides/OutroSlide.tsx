@@ -46,9 +46,10 @@ function getAwardColor(title: string): string {
   return "#B69CFF";
 }
 
-export function OutroSlide({ data, direction }: SlideProps) {
+export function OutroSlide({ data, direction, onSelectTeam }: SlideProps) {
   const awards = data.teamAwards;
   const [failedLogos, setFailedLogos] = useState<Record<string, boolean>>({});
+  const [loadedLogos, setLoadedLogos] = useState<Record<string, boolean>>({});
 
   return (
     <SlideLayout accentColor={SLIDE_COLORS.outro} direction={direction} mood="hero" pattern="orbs">
@@ -88,32 +89,45 @@ export function OutroSlide({ data, direction }: SlideProps) {
               const color = getAwardColor(award.title);
               const awardKey = `${award.teamId}-${award.title}-${i}`;
               return (
-                <motion.div
+                <motion.button
                   key={awardKey}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.68 + i * 0.03 }}
-                  className="group relative overflow-hidden rounded-2xl px-3.5 py-4 text-center flex flex-col items-center justify-start gap-2.5 min-h-[126px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))]"
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    if (data.teamData[award.teamId]) {
+                      onSelectTeam?.(award.teamId);
+                    }
+                  }}
+                  className="group relative overflow-hidden rounded-2xl px-3.5 py-4 text-center flex flex-col items-center justify-start gap-2.5 min-h-[126px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))] hover:border-white/16"
                   title={award.detail}
                 >
-                  {data.teamLogoMap[award.teamId] && !failedLogos[awardKey] ? (
-                    <img
-                      src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover bg-white/5"
-                      onError={() => {
-                        setFailedLogos((prev) => ({ ...prev, [awardKey]: true }));
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center bg-white/8 border border-white/10"
+                  <div className="relative w-10 h-10 rounded-full flex items-center justify-center bg-white/8 border border-white/10 overflow-hidden">
+                    <span
+                      className={`absolute inset-0 flex items-center justify-center text-white/55 text-sm font-display transition-opacity duration-200 ${
+                        loadedLogos[awardKey] && !failedLogos[awardKey] ? "opacity-0" : "opacity-100"
+                      }`}
                     >
-                      <span className="text-white/55 text-sm font-display">
-                        {award.teamName.charAt(0)}
-                      </span>
-                    </div>
-                  )}
+                      {award.teamName.charAt(0)}
+                    </span>
+                    {data.teamLogoMap[award.teamId] && !failedLogos[awardKey] ? (
+                      <img
+                        src={getTeamLogoUrl(data.teamLogoMap[award.teamId])}
+                        alt=""
+                        className={`absolute inset-0 w-10 h-10 rounded-full object-cover bg-white/5 transition-opacity duration-200 ${
+                          loadedLogos[awardKey] ? "opacity-100" : "opacity-0"
+                        }`}
+                        onLoad={() => {
+                          setLoadedLogos((prev) => ({ ...prev, [awardKey]: true }));
+                        }}
+                        onError={() => {
+                          setFailedLogos((prev) => ({ ...prev, [awardKey]: true }));
+                        }}
+                      />
+                    ) : null}
+                  </div>
 
                   <p className="text-white/72 text-[15px] font-medium leading-tight w-full copy-pretty">
                     {award.teamName}
@@ -131,9 +145,12 @@ export function OutroSlide({ data, direction }: SlideProps) {
                   <div className="pointer-events-none absolute inset-0 flex items-end bg-[linear-gradient(180deg,rgba(4,8,18,0.04),rgba(4,8,18,0.92))] px-3.5 py-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <p className="w-full text-center text-[12px] leading-[1.35] text-white/86 copy-pretty">
                       {award.detail}
+                      <span className="block mt-2 type-meta text-[#8B9DFF]/75">
+                        Open personal stats
+                      </span>
                     </p>
                   </div>
-                </motion.div>
+                </motion.button>
               );
             })}
           </div>
@@ -144,7 +161,7 @@ export function OutroSlide({ data, direction }: SlideProps) {
           transition={{ ...MOTION.reveal.transition, delay: 1.15 }}
           className="mt-4 text-[#8B9DFF]/65 type-kicker text-center"
         >
-          Continue to your personal chapter
+          Select your team to open your personal chapter
         </motion.p>
       </motion.div>
     </SlideLayout>

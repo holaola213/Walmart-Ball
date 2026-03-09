@@ -29,6 +29,7 @@ import { ConsolationBracketSlide } from "./ConsolationBracketSlide";
 export interface SlideProps {
   data: WrappedData;
   direction: number;
+  onSelectTeam?: (teamId: number) => void;
 }
 
 type SlideEntry =
@@ -64,11 +65,12 @@ const OUTRO_SLIDE: SlideEntry = {
 
 interface Props {
   data: WrappedData;
-  onFinished: () => void;
+  initialSlideId?: string;
+  onSelectTeam: (teamId: number) => void;
   onHome?: () => void;
 }
 
-export function SlideContainer({ data, onFinished, onHome }: Props) {
+export function SlideContainer({ data, initialSlideId, onSelectTeam, onHome }: Props) {
   const slides = useMemo(() => {
     const result: SlideEntry[] = [...STATIC_SLIDES_BEFORE];
 
@@ -99,8 +101,14 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
     return result;
   }, [data]);
 
+  const initialIndex = useMemo(() => {
+    if (!initialSlideId) return 0;
+    const match = slides.findIndex((slide) => slide.id === initialSlideId);
+    return match >= 0 ? match : 0;
+  }, [initialSlideId, slides]);
+
   const { currentIndex, direction, goNext, goPrev, isLast } =
-    useSlideNavigation(slides.length);
+    useSlideNavigation(slides.length, initialIndex);
 
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest("button, a, input, textarea, select, [role='button']")) return;
@@ -108,9 +116,7 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
     const clickedRightSide = e.clientX >= window.innerWidth / 2;
 
     if (clickedRightSide) {
-      if (isLast) {
-        onFinished();
-      } else {
+      if (!isLast) {
         goNext();
       }
     } else {
@@ -140,6 +146,7 @@ export function SlideContainer({ data, onFinished, onHome }: Props) {
           key={currentSlide.id}
           data={data}
           direction={direction}
+          onSelectTeam={onSelectTeam}
         />
       );
     }
