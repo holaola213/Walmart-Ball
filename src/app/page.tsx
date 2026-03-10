@@ -5,6 +5,7 @@ import { useWrappedData } from "@/hooks/useWrappedData";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { ErrorScreen } from "@/components/ui/ErrorScreen";
 import { SlideContainer } from "@/components/slides/SlideContainer";
+import { TradeHistoryContainer } from "@/components/slides/TradeHistoryContainer";
 import { PersonalSlideContainer } from "@/components/slides/personal/PersonalSlideContainer";
 import { motion } from "framer-motion";
 
@@ -25,11 +26,14 @@ function useCountdown(target: Date) {
   return { days, hours, minutes, seconds, expired: diff === 0 };
 }
 
-type AppView = "landing" | "loading" | "slides" | "personal";
+type AppView = "landing" | "loading" | "slides" | "personal" | "tradeHistory";
+type LoadedView = "slides" | "tradeHistory";
 
 export default function Home() {
   const { data, status, error, progress, fetchData } = useWrappedData();
   const [view, setView] = useState<AppView>("landing");
+  const [loadedView, setLoadedView] = useState<LoadedView>("slides");
+  const [pendingDestination, setPendingDestination] = useState<LoadedView>("slides");
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
   const [slideInitialId, setSlideInitialId] = useState<string | undefined>(undefined);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -42,26 +46,27 @@ export default function Home() {
       setShowPasswordModal(false);
       setPassword("");
       setPasswordError(false);
-      handleStart();
+      handleStart(pendingDestination);
     } else {
       setPasswordError(true);
     }
   };
 
-  const handleStart = () => {
+  const handleStart = (destination: LoadedView = "slides") => {
     setSlideInitialId(undefined);
+    setLoadedView(destination);
     setView("loading");
     fetchData();
   };
 
   const effectiveView: AppView =
-    view === "loading" && status === "success" && data ? "slides" : view;
+    view === "loading" && status === "success" && data ? loadedView : view;
 
   if (effectiveView === "loading" && status === "error") {
     return (
       <ErrorScreen
         error={error || "Something went wrong"}
-        onRetry={handleStart}
+        onRetry={() => handleStart(loadedView)}
       />
     );
   }
@@ -79,6 +84,15 @@ export default function Home() {
           setSelectedTeamId(teamId);
           setView("personal");
         }}
+        onHome={() => setView("landing")}
+      />
+    );
+  }
+
+  if (effectiveView === "tradeHistory" && data) {
+    return (
+      <TradeHistoryContainer
+        data={data}
         onHome={() => setView("landing")}
       />
     );
@@ -183,7 +197,10 @@ export default function Home() {
           <motion.button
             whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => setShowPasswordModal(true)}
+            onClick={() => {
+              setPendingDestination("slides");
+              setShowPasswordModal(true);
+            }}
             className="flex-1 relative group rounded-2xl p-5 pt-6 text-center overflow-hidden cursor-pointer transition-all"
             style={{
               background: "rgba(139, 157, 255, 0.08)",
@@ -281,6 +298,34 @@ export default function Home() {
             </div>
           </motion.div>
         </motion.div>
+
+        <motion.button
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.18 }}
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            setPendingDestination("tradeHistory");
+            setShowPasswordModal(true);
+          }}
+          className="w-full max-w-md mt-3 rounded-2xl px-5 py-3.5 inline-flex items-center justify-center gap-3 text-center overflow-hidden transition-all"
+          style={{
+            background: "rgba(114, 213, 255, 0.07)",
+            border: "1px solid rgba(114, 213, 255, 0.22)",
+            boxShadow: "0 0 28px rgba(114, 213, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#72D5FF] shrink-0">
+            <path d="M7 7H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M7 12H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M7 17H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M4 7H4.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M4 12H4.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M4 17H4.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="type-title-sm text-white">Trades</span>
+        </motion.button>
       </motion.div>
 
       {/* Password Modal */}

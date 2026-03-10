@@ -220,6 +220,7 @@ export interface WrappedData {
   tradeSummary: TradeSummary;
   unfairTrades: UnfairTradeRecord[];
   fairTrades: UnfairTradeRecord[];
+  allTradesChronological: UnfairTradeRecord[];
   waiverMvp: PlayerHighlight;
   waiverMvpRunnersUp: PlayerHighlight[];
   categoryLeaders: CategoryLeader[] | null;

@@ -87,7 +87,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     boomOrBust, boomOrBustRunnersUp,
   } = computeConsistency(teamWeeklyScores, teamMap);
   const tradeSummary = computeTradeSummary(raw, teamMap);
-  const unfairTrades = findMostUnfairTrades(
+  const scoredTradeRecords = collectScoredTradeRecords(
     raw.activityTopics || [],
     raw.transactions || [],
     raw.teams,
@@ -96,15 +96,9 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     scoringPeriodToMatchupPeriod,
     seasonId
   );
-  const fairTrades = findMostFairTrades(
-    raw.activityTopics || [],
-    raw.transactions || [],
-    raw.teams,
-    historicalRosters,
-    teamMap,
-    scoringPeriodToMatchupPeriod,
-    seasonId
-  );
+  const unfairTrades = findMostUnfairTrades(scoredTradeRecords);
+  const fairTrades = findMostFairTrades(scoredTradeRecords);
+  const allTradesChronological = findAllTradesChronological(scoredTradeRecords);
   const topPlayers = findTopPlayers(raw.teams, teamMap, seasonId);
   const mvpPlayer = topPlayers[0] || { playerName: "N/A", playerId: 0, teamName: "", teamId: 0, totalPoints: 0, acquisitionType: "", position: "" };
   const mvpPlayerRunnersUp = topPlayers.slice(1);
@@ -201,6 +195,7 @@ export function processWrappedData(raw: ESPNLeagueResponse): WrappedData {
     tradeSummary,
     unfairTrades,
     fairTrades,
+    allTradesChronological,
     waiverMvp,
     waiverMvpRunnersUp,
     categoryLeaders,
@@ -625,49 +620,23 @@ function getTeamDraftEntries(
 }
 
 function findMostUnfairTrades(
-  activityTopics: ESPNActivityTopic[],
-  transactions: ESPNTransaction[],
-  teams: ESPNTeam[],
-  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
-  teamMap: Record<number, string>,
-  scoringPeriodToMatchupPeriod: Map<number, number>,
-  seasonId: number,
+  trades: UnfairTradeRecord[],
   count: number = 5
 ): UnfairTradeRecord[] {
-  const trades = collectScoredTradeRecords(
-    activityTopics,
-    transactions,
-    teams,
-    historicalRostersByScoringPeriod,
-    teamMap,
-    scoringPeriodToMatchupPeriod,
-    seasonId
-  );
-
   return [...trades].sort(compareTradeRecordsDesc).slice(0, count);
 }
 
 function findMostFairTrades(
-  activityTopics: ESPNActivityTopic[],
-  transactions: ESPNTransaction[],
-  teams: ESPNTeam[],
-  historicalRostersByScoringPeriod: Record<number, ESPNTeam[]>,
-  teamMap: Record<number, string>,
-  scoringPeriodToMatchupPeriod: Map<number, number>,
-  seasonId: number,
+  trades: UnfairTradeRecord[],
   count: number = 3
 ): UnfairTradeRecord[] {
-  const trades = collectScoredTradeRecords(
-    activityTopics,
-    transactions,
-    teams,
-    historicalRostersByScoringPeriod,
-    teamMap,
-    scoringPeriodToMatchupPeriod,
-    seasonId
-  );
-
   return [...trades].sort(compareTradeRecordsAsc).slice(0, count);
+}
+
+function findAllTradesChronological(
+  trades: UnfairTradeRecord[]
+): UnfairTradeRecord[] {
+  return [...trades].sort(compareTradeRecordsChronological);
 }
 
 function compareTradeRecordsDesc(a: UnfairTradeRecord, b: UnfairTradeRecord): number {
@@ -683,6 +652,17 @@ function compareTradeRecordsAsc(a: UnfairTradeRecord, b: UnfairTradeRecord): num
     a.pointGap - b.pointGap ||
     (b.week || 0) - (a.week || 0) ||
     (a.tradeDate || "").localeCompare(b.tradeDate || "")
+  );
+}
+
+function compareTradeRecordsChronological(
+  a: UnfairTradeRecord,
+  b: UnfairTradeRecord
+): number {
+  return (
+    (a.week || Number.MAX_SAFE_INTEGER) - (b.week || Number.MAX_SAFE_INTEGER) ||
+    (a.tradeDate || "").localeCompare(b.tradeDate || "") ||
+    a.tradeId.localeCompare(b.tradeId)
   );
 }
 
@@ -924,7 +904,6 @@ function buildTradeRecord(
 
   const [winner, loser] = sides;
   const pointGap = winner.totalPoints - loser.totalPoints;
-  if (pointGap <= 0) return null;
 
   return {
     tradeId,
