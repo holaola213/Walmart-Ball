@@ -15,7 +15,7 @@ function TeamCell({
 }) {
   return (
     <div
-      className="flex items-center gap-2.5 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl px-3 md:px-3.5"
+      className="flex items-center gap-2 w-[156px] sm:w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl px-2.5 sm:px-3 md:px-3.5"
       style={{
         background: "linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(14, 22, 36, 0.76))",
         border: "1px solid rgba(180, 226, 214, 0.18)",
@@ -57,7 +57,7 @@ function TeamCell({
 function EmptySlot({ showTrophy = false }: { showTrophy?: boolean }) {
   return (
     <div
-      className="flex items-center justify-center gap-1 w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl"
+      className="flex items-center justify-center gap-1 w-[156px] sm:w-[182px] md:w-[216px] h-[42px] md:h-[46px] rounded-2xl"
       style={{
         background: "rgba(13, 20, 32, 0.7)",
         border: "1px dashed rgba(186, 230, 214, 0.22)",
@@ -76,7 +76,7 @@ function EmptySlot({ showTrophy = false }: { showTrophy?: boolean }) {
 function Connector({ heightPx }: { heightPx: number }) {
   const border = "1px solid rgba(255, 255, 255, 0.14)";
   return (
-    <div className="flex flex-col shrink-0 w-[20px]">
+    <div className="flex flex-col shrink-0 w-[16px] sm:w-[20px]">
       <div
         style={{
           borderTop: border,
@@ -200,23 +200,26 @@ export function WinnersBracketSlide({ data, direction }: SlideProps) {
         Seeds 1-8
       </motion.p>
 
-      <div className="w-full overflow-x-auto custom-scrollbar pb-2">
-        <div className="w-fit min-w-[792px] mx-auto px-4">
+      <div
+        className="w-full overflow-x-auto custom-scrollbar pb-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-fit min-w-[496px] sm:min-w-[610px] md:min-w-[712px] mx-auto px-2 sm:px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.55 }}
             className="flex items-center mb-3 justify-center"
           >
-            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+            <span className="w-[156px] sm:w-[182px] md:w-[216px] text-center text-white/65 type-meta">
               Round 1
             </span>
-            <span className="w-[32px] shrink-0" />
-            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+            <span className="w-[28px] sm:w-[32px] shrink-0" />
+            <span className="w-[156px] sm:w-[182px] md:w-[216px] text-center text-white/65 type-meta">
               Semifinals
             </span>
-            <span className="w-[32px] shrink-0" />
-            <span className="w-[182px] md:w-[216px] text-center text-white/65 type-meta">
+            <span className="w-[28px] sm:w-[32px] shrink-0" />
+            <span className="w-[156px] sm:w-[182px] md:w-[216px] text-center text-white/65 type-meta">
               Championship
             </span>
           </motion.div>

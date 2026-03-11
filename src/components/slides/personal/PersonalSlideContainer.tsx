@@ -62,7 +62,7 @@ export function PersonalSlideContainer({ team, teamLogoMap, onBack }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-[#05070b] overflow-hidden select-none"
+      className="fixed inset-0 bg-[#05070b] overflow-hidden select-none app-screen touch-manipulation"
       onClick={handleClick}
     >
       <ProgressBar

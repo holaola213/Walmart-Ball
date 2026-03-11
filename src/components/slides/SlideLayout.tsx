@@ -243,7 +243,7 @@ export function SlideLayout({
       animate="center"
       exit="exit"
       transition={slideTransition}
-      className="absolute -inset-x-[8%] inset-y-0 flex flex-col items-center justify-center p-8 md:p-16 grain"
+      className="absolute inset-y-0 inset-x-0 md:-inset-x-[8%] grain overflow-hidden"
       style={{ background: styles.baseBackground }}
     >
       <motion.div
@@ -269,7 +269,15 @@ export function SlideLayout({
         style={{ background: styles.veil }}
       />
 
-      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center">
+      <div
+        className="relative z-10 flex h-full w-full flex-col items-center justify-center slide-scroll-region"
+        style={{
+          paddingTop: "max(2rem, calc(env(safe-area-inset-top, 0px) + 1rem))",
+          paddingRight: "max(1.25rem, calc(env(safe-area-inset-right, 0px) + 1rem))",
+          paddingBottom: "max(2rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))",
+          paddingLeft: "max(1.25rem, calc(env(safe-area-inset-left, 0px) + 1rem))",
+        }}
+      >
         {children}
       </div>
     </motion.div>

@@ -10,7 +10,7 @@ interface Props {
 export function ErrorScreen({ error, onRetry }: Props) {
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center gap-6 p-8 grain"
+      className="fixed inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center grain app-screen safe-screen-padding"
       style={{
         background: `
           radial-gradient(ellipse at 50% 40%, rgba(239, 68, 68, 0.06) 0%, transparent 50%),

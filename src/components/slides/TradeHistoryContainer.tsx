@@ -66,7 +66,7 @@ export function TradeHistoryContainer({ data, onHome }: Props) {
 
   return (
     <div
-      className="fixed inset-0 overflow-hidden select-none"
+      className="fixed inset-0 overflow-hidden select-none app-screen touch-manipulation"
       style={{ background: PALETTE.background }}
       onClick={handleClick}
     >
@@ -78,7 +78,7 @@ export function TradeHistoryContainer({ data, onHome }: Props) {
             e.stopPropagation();
             onHome();
           }}
-          className="fixed top-4 left-4 z-50 inline-flex h-10 items-center gap-2 rounded-full glass px-3 text-white/68 hover:text-white hover:bg-white/[0.12] transition-all"
+          className="screen-action fixed z-50 inline-flex h-9 items-center gap-2 rounded-full glass px-2.5 text-white/68 transition-all hover:bg-white/[0.12] hover:text-white sm:h-10 sm:px-3"
           aria-label="Back to home"
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">

@@ -15,7 +15,7 @@ export function WelcomeSlide({ data, direction }: SlideProps) {
       <motion.div
         {...MOTION.intro}
         transition={{ ...MOTION.intro.transition, delay: 0.15 }}
-        className="w-full max-w-5xl -translate-y-8 md:-translate-y-14"
+        className="w-full max-w-5xl md:-translate-y-8 lg:-translate-y-14"
       >
         <p className="type-kicker mb-5 text-center md:text-left" style={{ color: `${SLIDE_COLORS.welcome}BE` }}>
           {data.seasonYear} Regular Season Recap

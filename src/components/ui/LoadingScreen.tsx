@@ -15,7 +15,7 @@ const statusMessages: Record<string, string> = {
 export function LoadingScreen({ progress, status }: Props) {
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center gap-10 grain"
+      className="fixed inset-0 flex flex-col items-center justify-center gap-8 px-6 text-center grain app-screen safe-screen-padding"
       style={{
         background: `
           radial-gradient(ellipse at 50% 40%, rgba(114, 213, 255, 0.12) 0%, transparent 60%),

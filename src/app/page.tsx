@@ -116,7 +116,8 @@ export default function Home() {
 
   // Landing page
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center p-8 grain"
+    <div
+      className="fixed inset-0 overflow-y-auto overflow-x-hidden grain app-screen"
       style={{
         background: `
           radial-gradient(ellipse at 30% 30%, rgba(139, 157, 255, 0.16) 0%, transparent 50%),
@@ -136,12 +137,21 @@ export default function Home() {
         }}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center relative z-10"
+      <div
+        className="relative z-10 flex min-h-full w-full items-center justify-center px-5 py-8 sm:px-8"
+        style={{
+          paddingTop: "max(2rem, calc(env(safe-area-inset-top, 0px) + 1rem))",
+          paddingRight: "max(1.25rem, calc(env(safe-area-inset-right, 0px) + 1rem))",
+          paddingBottom: "max(2rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))",
+          paddingLeft: "max(1.25rem, calc(env(safe-area-inset-left, 0px) + 1rem))",
+        }}
       >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center w-full max-w-md"
+        >
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -181,7 +191,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-[#8B9DFF]/70 text-[15px] leading-[1.35] mb-14 copy-pretty"
+          className="text-[#8B9DFF]/70 text-[14px] sm:text-[15px] leading-[1.35] mb-10 sm:mb-14 copy-pretty"
         >
           Commissioner Richard
         </motion.p>
@@ -191,7 +201,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.0 }}
-          className="flex gap-4 w-full max-w-md"
+          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
         >
           {/* Regular Season — Active */}
           <motion.button
@@ -326,7 +336,8 @@ export default function Home() {
           </svg>
           <span className="type-title-sm text-white">Trades</span>
         </motion.button>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* Password Modal */}
       {showPasswordModal && (
