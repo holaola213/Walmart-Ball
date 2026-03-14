@@ -40,6 +40,7 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const countdown = useCountdown(PLAYOFF_END_DATE);
+  const playoffsUnlocked = countdown.expired;
 
   const handlePasswordSubmit = () => {
     if (password === SEASON_PASSWORD) {
@@ -259,24 +260,60 @@ export default function Home() {
             transition={{ delay: 1.15 }}
             className="flex-1 relative rounded-2xl p-5 pt-6 text-center overflow-hidden"
             style={{
-              background: "rgba(255, 255, 255, 0.02)",
-              border: "1px solid rgba(255, 255, 255, 0.06)",
+              backgroundImage: `
+                linear-gradient(180deg, rgba(9, 11, 16, ${playoffsUnlocked ? "0.18" : "0.44"}) 0%, rgba(6, 7, 10, ${playoffsUnlocked ? "0.58" : "0.82"}) 100%),
+                url('/playoffs-lock.png')
+              `,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              border: playoffsUnlocked
+                ? "1px solid rgba(255, 255, 255, 0.14)"
+                : "1px solid rgba(255, 255, 255, 0.08)",
+              filter: playoffsUnlocked
+                ? "saturate(1)"
+                : "grayscale(1) saturate(0.18) brightness(0.72)",
             }}
           >
+            <div
+              className="absolute inset-0"
+              style={{
+                background: playoffsUnlocked
+                  ? "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(5,6,8,0.2))"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,6,8,0.12))",
+              }}
+            />
             {/* Locked indicator */}
-            <div className="flex items-center justify-center gap-1.5 mb-3">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white/20">
-                <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" />
+            <div className="relative flex items-center justify-center gap-1.5 mb-3">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                className={playoffsUnlocked ? "text-[#D8E8FF]/60" : "text-white/20"}
+              >
+                {playoffsUnlocked ? (
+                  <path
+                    d="M5 12.5L9.5 17L19 7.5"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ) : (
+                  <>
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" />
+                  </>
+                )}
               </svg>
-              <span className="type-meta text-white/20">
-                Locked
+              <span className={`type-meta ${playoffsUnlocked ? "text-[#D8E8FF]/60" : "text-white/20"}`}>
+                {playoffsUnlocked ? "Unlocked" : "Locked"}
               </span>
             </div>
 
             {/* Trophy icon — dimmed */}
-            <div className="relative mx-auto mb-3 w-10 h-10 flex items-center justify-center opacity-20">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white">
+            <div className={`relative mx-auto mb-3 w-10 h-10 flex items-center justify-center ${playoffsUnlocked ? "opacity-75" : "opacity-20"}`}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className={playoffsUnlocked ? "text-white/90" : "text-white"}>
                 <path d="M8 2H16V10C16 12.2091 14.2091 14 12 14C9.79086 14 8 12.2091 8 10V2Z" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M8 4H5C4 4 3 5 3 7C3 9 4.5 10 5 10H8" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M16 4H19C20 4 21 5 21 7C21 9 19.5 10 19 10H16" stroke="currentColor" strokeWidth="1.5" />
@@ -285,25 +322,25 @@ export default function Home() {
               </svg>
             </div>
 
-            <p className="type-title-md text-white/15 mb-2">
+            <p className={`relative type-title-md mb-2 ${playoffsUnlocked ? "text-white/92" : "text-white/15"}`}>
               Playoffs
             </p>
 
             {/* Countdown timer */}
-            <div className="flex items-center justify-center gap-2">
+            <div className="relative flex items-center justify-center gap-2">
               <div className="text-center">
-                <p className="font-stat text-sm text-white/25 leading-none">{countdown.days}</p>
-                <p className="type-meta text-white/10">Day</p>
+                <p className={`font-stat text-sm leading-none ${playoffsUnlocked ? "text-white/80" : "text-white/25"}`}>{countdown.days}</p>
+                <p className={`type-meta ${playoffsUnlocked ? "text-white/45" : "text-white/10"}`}>Day</p>
               </div>
-              <span className="text-white/10 text-[10px] font-stat -mt-2">:</span>
+              <span className={`text-[10px] font-stat -mt-2 ${playoffsUnlocked ? "text-white/35" : "text-white/10"}`}>:</span>
               <div className="text-center">
-                <p className="font-stat text-sm text-white/25 leading-none">{countdown.hours}</p>
-                <p className="type-meta text-white/10">Hr</p>
+                <p className={`font-stat text-sm leading-none ${playoffsUnlocked ? "text-white/80" : "text-white/25"}`}>{countdown.hours}</p>
+                <p className={`type-meta ${playoffsUnlocked ? "text-white/45" : "text-white/10"}`}>Hr</p>
               </div>
-              <span className="text-white/10 text-[10px] font-stat -mt-2">:</span>
+              <span className={`text-[10px] font-stat -mt-2 ${playoffsUnlocked ? "text-white/35" : "text-white/10"}`}>:</span>
               <div className="text-center">
-                <p className="font-stat text-sm text-white/25 leading-none">{countdown.minutes}</p>
-                <p className="type-meta text-white/10">Min</p>
+                <p className={`font-stat text-sm leading-none ${playoffsUnlocked ? "text-white/80" : "text-white/25"}`}>{countdown.minutes}</p>
+                <p className={`type-meta ${playoffsUnlocked ? "text-white/45" : "text-white/10"}`}>Min</p>
               </div>
             </div>
           </motion.div>
